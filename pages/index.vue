@@ -78,15 +78,22 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    const { token } = await $fetch('/api/auth/login', {
+    const response = await $fetch('/api/auth/login', {
       method: 'POST',
       body: formState,
     })
 
-    localStorage.setItem('auth_token', token)
-    router.push('/dashboard')
+    console.log('Login response:', response)
+
+    if (response?.token) {
+      localStorage.setItem('auth_token', response.token)
+      router.push('/dashboard')
+    } else {
+      error.value = 'Resposta inválida do servidor'
+    }
   } catch (e: any) {
-    error.value = e.data?.message || 'Credenciais inválidas'
+    console.error('Login error:', e)
+    error.value = e.data?.message || e.message || 'Credenciais inválidas'
   } finally {
     isLoading.value = false
   }
