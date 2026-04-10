@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
       amount: body.amount,
       due_date: body.dueDate,
       status: body.status || 'pending',
+      paid_at: body.status === 'paid' ? new Date().toISOString() : null,
       payment_method: body.paymentMethod || null,
       notes: body.notes || null,
     })

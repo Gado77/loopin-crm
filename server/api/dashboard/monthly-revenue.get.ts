@@ -19,8 +19,8 @@ export default defineEventHandler(async () => {
       .from('invoices')
       .select('amount')
       .eq('status', 'paid')
-      .gte('paid_at', monthStart)
-      .lt('paid_at', monthEnd)
+      .gte('due_date', monthStart)
+      .lt('due_date', monthEnd)
 
     data.push(paidData?.reduce((sum, inv) => sum + Number(inv.amount), 0) || 0)
   }
