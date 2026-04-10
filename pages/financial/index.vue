@@ -96,8 +96,11 @@
       </template>
     </UTabs>
 
-    <UModal v-model:open="isModalOpen" :title="editingTransaction ? 'Editar Transação' : 'Nova Transação'">
-      <UForm :state="formState" :schema="schema" @submit="handleSubmit" class="space-y-4">
+    <UModal v-model:open="isModalOpen">
+      <template #content>
+        <div class="p-6 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold mb-4">{{ editingTransaction ? 'Editar Transação' : 'Nova Transação' }}</h3>
+          <UForm :state="formState" :schema="schema" @submit="handleSubmit" class="space-y-4">
         <UFormField label="Tipo" name="type">
           <USelect
             v-model="formState.type"
@@ -142,16 +145,21 @@
           </UButton>
         </div>
       </UForm>
+        </div>
+      </template>
     </UModal>
 
-    <UModal v-model:open="isDeleteOpen" title="Confirmar Exclusão">
-      <p class="text-gray-600 dark:text-gray-300">
+    <UModal v-model:open="isDeleteOpen">
+      <template #content>
+        <div class="p-6">
+          <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
+          <p class="text-gray-600 dark:text-gray-300">
         Tem certeza que deseja excluir esta transação?
       </p>
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton variant="soft" @click="isDeleteOpen = false">Cancelar</UButton>
-          <UButton color="error" :loading="isDeleting" @click="handleDelete">Excluir</UButton>
+          <div class="flex justify-end gap-3 mt-6">
+            <UButton variant="soft" @click="isDeleteOpen = false">Cancelar</UButton>
+            <UButton color="error" :loading="isDeleting" @click="handleDelete">Excluir</UButton>
+          </div>
         </div>
       </template>
     </UModal>

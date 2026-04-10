@@ -48,8 +48,11 @@
       </UTable>
     </UCard>
 
-    <UModal v-model:open="isModalOpen" :title="editingClient ? 'Editar Cliente' : 'Novo Cliente'">
-      <UForm :state="formState" :schema="schema" @submit="handleSubmit" class="space-y-4">
+    <UModal v-model:open="isModalOpen">
+      <template #content>
+        <div class="p-6 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold mb-4">{{ editingClient ? 'Editar Cliente' : 'Novo Cliente' }}</h3>
+          <UForm :state="formState" :schema="schema" @submit="handleSubmit" class="space-y-4">
         <UFormField label="Nome" name="name">
           <UInput v-model="formState.name" placeholder="Nome do cliente" />
         </UFormField>
@@ -86,10 +89,15 @@
           </UButton>
         </div>
       </UForm>
+        </div>
+      </template>
     </UModal>
 
-    <UModal v-model:open="isDetailOpen" title="Detalhes do Cliente">
-      <div v-if="selectedClient" class="space-y-4">
+    <UModal v-model:open="isDetailOpen">
+      <template #content>
+        <div class="p-6 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold mb-4">Detalhes do Cliente</h3>
+          <div v-if="selectedClient" class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
             <p class="text-sm text-gray-500">Nome</p>
@@ -151,17 +159,22 @@
           <p v-else class="text-gray-500">Nenhuma fatura registrada</p>
         </div>
       </div>
+        </div>
+      </template>
     </UModal>
 
-    <UModal v-model:open="isDeleteOpen" title="Confirmar Exclusão">
-      <p class="text-gray-600 dark:text-gray-300">
+    <UModal v-model:open="isDeleteOpen">
+      <template #content>
+        <div class="p-6">
+          <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
+          <p class="text-gray-600 dark:text-gray-300">
         Tem certeza que deseja excluir o cliente <strong>{{ clientToDelete?.name }}</strong>?
         Esta ação não pode ser desfeita.
       </p>
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <UButton variant="soft" @click="isDeleteOpen = false">Cancelar</UButton>
-          <UButton color="error" :loading="isDeleting" @click="handleDelete">Excluir</UButton>
+          <div class="flex justify-end gap-3 mt-6">
+            <UButton variant="soft" @click="isDeleteOpen = false">Cancelar</UButton>
+            <UButton color="error" :loading="isDeleting" @click="handleDelete">Excluir</UButton>
+          </div>
         </div>
       </template>
     </UModal>
