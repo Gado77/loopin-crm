@@ -1,5 +1,6 @@
+import { verifyToken } from '../../utils/auth'
+
 export default defineEventHandler(async (event) => {
-  const { verifyToken } = await import('../../utils/auth')
   const authHeader = getHeader(event, 'authorization')
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

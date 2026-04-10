@@ -1,5 +1,5 @@
-import { SignJWT } from 'jose'
 import { useDb } from '../../utils/db'
+import { createToken } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -37,12 +37,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'loopin-crm-secret')
-  const token = await new SignJWT({ sub: user.id, email: user.email })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('7d')
-    .sign(secret)
+  const token = await createToken({ id: user.id, email: user.email })
 
   return {
     token,
