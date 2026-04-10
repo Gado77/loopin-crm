@@ -174,7 +174,7 @@ const { data: clients } = await useFetch('/api/clients')
 const { data: establishments } = await useFetch('/api/establishments')
 
 const statusOptions = [
-  { label: 'Todos', value: '' },
+  { label: 'Todos', value: 'all' },
   { label: 'Pendente', value: 'pending' },
   { label: 'Paga', value: 'paid' },
   { label: 'Vencida', value: 'overdue' },
@@ -228,7 +228,7 @@ const filteredInvoices = computed(() => {
   if (!invoices.value) return []
   let result = invoices.value
   
-  if (filterStatus.value) {
+  if (filterStatus.value && filterStatus.value !== 'all') {
     result = result.filter((i: any) => i.status === filterStatus.value)
   }
   
