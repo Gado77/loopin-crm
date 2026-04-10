@@ -1,16 +1,15 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { hashSync } from 'bcryptjs'
 
 let supabase: SupabaseClient | null = null
 
 export function useDb(): SupabaseClient {
   if (!supabase) {
-    const config = useRuntimeConfig()
-    const url = config.databaseUrl || process.env.DATABASE_URL || ''
-    const key = config.databaseKey || process.env.DATABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    const url = process.env.DATABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.DATABASE_KEY
     
     if (!url || !key) {
-      throw new Error('DATABASE_URL and DATABASE_KEY environment variables are required')
+      console.error('Missing env vars:', { url: !!url, key: !!key })
+      throw new Error('Database configuration missing. Please check environment variables.')
     }
     
     supabase = createClient(url, key)
