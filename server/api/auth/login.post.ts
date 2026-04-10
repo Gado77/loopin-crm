@@ -1,4 +1,5 @@
-import { compareSync } from 'bcryptjs'
+import pkg from 'bcryptjs'
+const { compareSync } = pkg
 import { SignJWT } from 'jose'
 import { useDb } from '../../utils/db'
 
