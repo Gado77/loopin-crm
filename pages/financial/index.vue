@@ -58,28 +58,28 @@
       <template #transactions>
         <UCard class="bg-white dark:bg-gray-900">
           <UTable :data="transactions || []" :columns="columns" class="w-full">
-            <template #type="{ row }">
-              <UBadge :color="(row as any).type === 'income' ? 'success' : 'error'">
-                {{ (row as any).type === 'income' ? 'Entrada' : 'Despesa' }}
+            <template #type-cell="{ row }">
+              <UBadge :color="row.original.type === 'income' ? 'success' : 'error'">
+                {{ row.original.type === 'income' ? 'Entrada' : 'Despesa' }}
               </UBadge>
             </template>
-            <template #categoryName="{ row }">
-              {{ (row as any).categoryName || '-' }}
+            <template #categoryName-cell="{ row }">
+              {{ row.original.categoryName || '-' }}
             </template>
-            <template #actions="{ row }">
+            <template #actions-cell="{ row }">
               <div class="flex items-center gap-2">
                 <UButton
                   variant="ghost"
                   size="sm"
                   icon="i-lucide-pencil"
-                  @click="openModal(row as any)"
+                  @click="openModal(row.original)"
                 />
                 <UButton
                   variant="ghost"
                   color="error"
                   size="sm"
                   icon="i-lucide-trash-2"
-                  @click="confirmDelete(row as any)"
+                  @click="confirmDelete(row.original)"
                 />
               </div>
             </template>
@@ -108,7 +108,7 @@
           />
         </UFormField>
 
-        <UFormField label="Categoria" name="categoryId">
+        <UFormField label="Categoria" name="categoryId" v-if="formState.type === 'expense'">
           <USelect
             v-model="formState.categoryId"
             :items="categoryOptions"
@@ -229,15 +229,16 @@ const categoryOptions = computed(() => {
 })
 
 const columns = [
-  { accessorKey: 'date', header: 'Data', cell: (row: any) => formatDate(row.date) },
+  { accessorKey: 'date', header: 'Data', cell: ({ row }: any) => formatDate(row.original.date) },
   { accessorKey: 'type', header: 'Tipo' },
   { accessorKey: 'description', header: 'Descrição' },
   { accessorKey: 'categoryName', header: 'Categoria' },
-  { accessorKey: 'amount', header: 'Valor', cell: (row: any) => {
-    const color = row.type === 'income' ? 'text-green-600' : 'text-red-600'
-    const prefix = row.type === 'income' ? '+' : '-'
-    return h('span', { class: color }, `${prefix} R$ ${(row.amount || 0).toFixed(2)}`)
+  { accessorKey: 'amount', header: 'Valor', cell: ({ row }: any) => {
+    const color = row.original.type === 'income' ? 'text-green-600' : 'text-red-600'
+    const prefix = row.original.type === 'income' ? '+' : '-'
+    return h('span', { class: color }, `${prefix} R$ ${(row.original.amount || 0).toFixed(2)}`)
   }},
+  { accessorKey: 'actions' },
 ]
 
 const formatCurrency = (value: number) => {
@@ -279,15 +280,25 @@ const handleSubmit = async () => {
   isSubmitting.value = true
   try {
     if (editingTransaction.value) {
+      const payload = { ...formState }
+      if (payload.type === 'income') {
+        payload.categoryId = undefined
+      }
+
       await $fetch(`/api/financial/${editingTransaction.value.id}`, {
         method: 'PUT',
-        body: formState,
+        body: payload,
       })
       toast.add({ title: 'Transação atualizada!', color: 'success' })
     } else {
+      const payload = { ...formState }
+      if (payload.type === 'income') {
+        payload.categoryId = undefined
+      }
+      
       await $fetch('/api/financial', {
         method: 'POST',
-        body: formState,
+        body: payload,
       })
       toast.add({ title: 'Transação criada!', color: 'success' })
     }
