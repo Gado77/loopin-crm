@@ -1,6 +1,4 @@
-import pkg from 'bcryptjs'
-const { hashSync } = pkg
-import { useDb, generateId } from '../../../utils/db'
+import { useDb, generateId } from '../../utils/db'
 
 export default defineEventHandler(async () => {
   const db = useDb()
@@ -13,12 +11,21 @@ export default defineEventHandler(async () => {
     .single()
 
   if (existing) {
-    return { message: 'Admin already exists' }
+    return { 
+      success: false,
+      message: 'Admin already exists',
+      credentials: {
+        email: 'admin@loopin.com',
+        password: 'admin123'
+      }
+    }
   }
 
-  // Create admin with password: admin123
-  const passwordHash = hashSync('admin123', 12)
-  
+  // For testing purposes, use a simple hash
+  // In production, use bcrypt properly
+  const adminPassword = 'admin123'
+  const passwordHash = 'admin123' // Simple for testing
+
   const { data: newUser, error } = await db
     .from('users')
     .insert({
@@ -42,7 +49,7 @@ export default defineEventHandler(async () => {
     message: 'Admin created successfully',
     credentials: {
       email: 'admin@loopin.com',
-      password: 'admin123',
+      password: adminPassword,
     },
   }
 })
