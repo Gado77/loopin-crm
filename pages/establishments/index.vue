@@ -26,10 +26,10 @@
       </div>
 
       <UTable :data="filteredEstablishments" :columns="columns" class="w-full">
-        <template #status-data="{ row }">
+        <template #status-cell="{ row }">
           <UBadge :color="getStatusColor(row.status)">{{ getStatusLabel(row.status) }}</UBadge>
         </template>
-        <template #actions-data="{ row }">
+        <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
             <UButton
               variant="ghost"

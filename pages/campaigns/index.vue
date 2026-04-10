@@ -27,10 +27,10 @@
 
     <UCard class="bg-white dark:bg-gray-900">
       <UTable :data="filteredCampaigns" :columns="columns" class="w-full">
-        <template #status-data="{ row }">
+        <template #status-cell="{ row }">
           <UBadge :color="row.status === 'active' ? 'success' : 'neutral'">{{ getStatusLabel(row.status) }}</UBadge>
         </template>
-        <template #actions-data="{ row }">
+        <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
             <UButton
               variant="ghost"
