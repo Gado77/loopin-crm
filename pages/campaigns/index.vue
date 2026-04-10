@@ -28,7 +28,7 @@
     <UCard class="bg-white dark:bg-gray-900">
       <UTable :data="filteredCampaigns" :columns="columns" class="w-full">
         <template #status-cell="{ row }">
-          <UBadge :color="row.status === 'active' ? 'success' : 'neutral'">{{ getStatusLabel(row.status) }}</UBadge>
+          <UBadge :color="row.original.status === 'active' ? 'success' : 'neutral'">{{ getStatusLabel(row.original.status) }}</UBadge>
         </template>
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
@@ -36,14 +36,14 @@
               variant="ghost"
               size="sm"
               icon="i-lucide-pencil"
-              @click="openModal(row)"
+              @click="openModal(row.original)"
             />
             <UButton
               variant="ghost"
               color="error"
               size="sm"
               icon="i-lucide-trash-2"
-              @click="confirmDelete(row)"
+              @click="confirmDelete(row.original)"
             />
           </div>
         </template>
@@ -214,9 +214,9 @@ const getStatusLabel = (status: string) => {
 const columns = [
   { accessorKey: 'name', header: 'Campanha' },
   { accessorKey: 'clientName', header: 'Anunciante' },
-  { accessorKey: 'establishmentsRendered', header: 'Telas Veiculadas', cell: (row: any) => row.establishmentsRendered },
-  { accessorKey: 'ad_type', header: 'Formato', cell: (row: any) => row.ad_type || '-' },
-  { accessorKey: 'end_date', header: 'Fim', cell: (row: any) => formatDate(row.end_date) },
+  { accessorKey: 'establishmentsRendered', header: 'Telas Veiculadas', cell: ({ row }: any) => row.original.establishmentsRendered },
+  { accessorKey: 'ad_type', header: 'Formato', cell: ({ row }: any) => row.original.ad_type || '-' },
+  { accessorKey: 'end_date', header: 'Fim', cell: ({ row }: any) => formatDate(row.original.end_date) },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'actions' },
 ]

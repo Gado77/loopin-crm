@@ -27,7 +27,7 @@
 
       <UTable :data="filteredEstablishments" :columns="columns" class="w-full">
         <template #status-cell="{ row }">
-          <UBadge :color="getStatusColor(row.status)">{{ getStatusLabel(row.status) }}</UBadge>
+          <UBadge :color="getStatusColor(row.original.status)">{{ getStatusLabel(row.original.status) }}</UBadge>
         </template>
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
@@ -35,14 +35,14 @@
               variant="ghost"
               size="sm"
               icon="i-lucide-pencil"
-              @click="openModal(row)"
+              @click="openModal(row.original)"
             />
             <UButton
               variant="ghost"
               color="error"
               size="sm"
               icon="i-lucide-trash-2"
-              @click="confirmDelete(row)"
+              @click="confirmDelete(row.original)"
             />
           </div>
         </template>
@@ -190,9 +190,9 @@ const getStatusLabel = (status: string) => {
 
 const columns = [
   { accessorKey: 'name', header: 'Local' },
-  { accessorKey: 'address', header: 'Endereço', cell: (row: any) => row.address || '-' },
-  { accessorKey: 'screens_count', header: 'Telas', cell: (row: any) => `${row.screens_count || 1}x` },
-  { accessorKey: 'location_cost', header: 'Custo do Ponto', cell: (row: any) => `R$ ${(row.location_cost || 0).toFixed(2)}` },
+  { accessorKey: 'address', header: 'Endereço', cell: ({ row }: any) => row.original.address || '-' },
+  { accessorKey: 'screens_count', header: 'Telas', cell: ({ row }: any) => `${row.original.screens_count || 1}x` },
+  { accessorKey: 'location_cost', header: 'Custo do Ponto', cell: ({ row }: any) => `R$ ${(row.original.location_cost || 0).toFixed(2)}` },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'actions' },
 ]

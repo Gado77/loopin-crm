@@ -27,7 +27,7 @@
 
       <UTable :data="filteredClients" :columns="columns" class="w-full">
         <template #status-cell="{ row }">
-          <UBadge :color="getStatusColor(row.status)">{{ getStatusLabel(row.status) }}</UBadge>
+          <UBadge :color="getStatusColor(row.original.status)">{{ getStatusLabel(row.original.status) }}</UBadge>
         </template>
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
@@ -36,20 +36,20 @@
               color="primary"
               size="sm"
               icon="i-lucide-eye"
-              @click="viewClient(row)"
+              @click="viewClient(row.original)"
             />
             <UButton
               variant="ghost"
               size="sm"
               icon="i-lucide-pencil"
-              @click="openModal(row)"
+              @click="openModal(row.original)"
             />
             <UButton
               variant="ghost"
               color="error"
               size="sm"
               icon="i-lucide-trash-2"
-              @click="confirmDelete(row)"
+              @click="confirmDelete(row.original)"
             />
           </div>
         </template>
@@ -341,9 +341,9 @@ const getInvoiceStatusLabel = (status: string) => {
 
 const columns = [
   { accessorKey: 'name', header: 'Anunciante' },
-  { accessorKey: 'segment', header: 'Segmento', cell: (row: any) => row.segment || '-' },
-  { accessorKey: 'plan_type', header: 'Plano', cell: (row: any) => row.plan_type || '-' },
-  { accessorKey: 'monthly_fee', header: 'Mensalidade', cell: (row: any) => `R$ ${(row.monthly_fee || 0).toFixed(2)}` },
+  { accessorKey: 'segment', header: 'Segmento', cell: ({ row }: any) => row.original.segment || '-' },
+  { accessorKey: 'plan_type', header: 'Plano', cell: ({ row }: any) => row.original.plan_type || '-' },
+  { accessorKey: 'monthly_fee', header: 'Mensalidade', cell: ({ row }: any) => `R$ ${(row.original.monthly_fee || 0).toFixed(2)}` },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'actions' },
 ]

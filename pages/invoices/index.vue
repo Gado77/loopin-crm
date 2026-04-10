@@ -28,30 +28,30 @@
     <UCard class="bg-white dark:bg-gray-900">
       <UTable :data="filteredInvoices" :columns="columns" class="w-full">
         <template #status-cell="{ row }">
-          <UBadge :color="getStatusColor(row.status)">{{ getStatusLabel(row.status) }}</UBadge>
+          <UBadge :color="getStatusColor(row.original.status)">{{ getStatusLabel(row.original.status) }}</UBadge>
         </template>
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
             <UButton
-              v-if="row.status === 'pending' || row.status === 'overdue'"
+              v-if="row.original.status === 'pending' || row.original.status === 'overdue'"
               variant="ghost"
               color="success"
               size="sm"
               icon="i-lucide-check"
-              @click="markAsPaid(row)"
+              @click="markAsPaid(row.original)"
             />
             <UButton
               variant="ghost"
               size="sm"
               icon="i-lucide-pencil"
-              @click="openModal(row)"
+              @click="openModal(row.original)"
             />
             <UButton
               variant="ghost"
               color="error"
               size="sm"
               icon="i-lucide-trash-2"
-              @click="confirmDelete(row)"
+              @click="confirmDelete(row.original)"
             />
           </div>
         </template>
@@ -215,9 +215,9 @@ const getStatusLabel = (status: string) => {
 
 const columns = [
   { accessorKey: 'clientName', header: 'Anunciante' },
-  { accessorKey: 'amount', header: 'Valor (R$)', cell: (row: any) => `R$ ${(row.amount || 0).toFixed(2)}` },
-  { accessorKey: 'due_date', header: 'Vencimento', cell: (row: any) => formatDate(row.due_date) },
-  { accessorKey: 'payment_method', header: 'Meio Pgto', cell: (row: any) => row.payment_method || '-' },
+  { accessorKey: 'amount', header: 'Valor (R$)', cell: ({ row }: any) => `R$ ${(row.original.amount || 0).toFixed(2)}` },
+  { accessorKey: 'due_date', header: 'Vencimento', cell: ({ row }: any) => formatDate(row.original.due_date) },
+  { accessorKey: 'payment_method', header: 'Meio Pgto', cell: ({ row }: any) => row.original.payment_method || '-' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'actions' },
 ]
