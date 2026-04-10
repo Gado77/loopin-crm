@@ -11,7 +11,7 @@
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Total a Receber</p>
             <p class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ formatCurrency(stats.totalReceivable) }}
+              {{ formatCurrency(stats?.totalReceivable || 0) }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
@@ -25,7 +25,7 @@
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Faturas em Atraso</p>
             <p class="text-2xl font-bold text-amber-600">
-              {{ stats.overdueInvoices }}
+              {{ stats?.overdueInvoices || 0 }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
@@ -38,8 +38,8 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Inadimplência</p>
-            <p class="text-2xl font-bold" :class="stats.overduePercentage > 20 ? 'text-red-600' : 'text-green-600'">
-              {{ stats.overduePercentage }}%
+            <p class="text-2xl font-bold" :class="(stats?.overduePercentage || 0) > 20 ? 'text-red-600' : 'text-green-600'">
+              {{ stats?.overduePercentage || 0 }}%
             </p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
@@ -53,7 +53,7 @@
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Total de Clientes</p>
             <p class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ stats.totalClients }}
+              {{ stats?.totalClients || 0 }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
@@ -78,11 +78,11 @@
           <h2 class="font-semibold text-gray-900 dark:text-white">Próximos Vencimentos</h2>
         </template>
         <div class="space-y-3">
-          <div v-if="upcomingInvoices.length === 0" class="text-center py-8 text-gray-500">
+          <div v-if="(upcomingInvoices?.length || 0) === 0" class="text-center py-8 text-gray-500">
             Nenhum vencimento próximo
           </div>
           <div
-            v-for="invoice in upcomingInvoices"
+            v-for="invoice in (upcomingInvoices as any) || []"
             :key="invoice.id"
             class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
           >
@@ -105,7 +105,7 @@
           <h2 class="font-semibold text-gray-900 dark:text-white">Faturas Recentes</h2>
         </template>
         <div class="overflow-x-auto">
-          <UTable :data="recentInvoices" :columns="invoiceColumns" />
+          <UTable :data="recentInvoices || []" :columns="invoiceColumns" />
         </div>
       </UCard>
 
@@ -114,11 +114,11 @@
           <h2 class="font-semibold text-gray-900 dark:text-white">Despesas do Mês</h2>
         </template>
         <div class="space-y-3">
-          <div v-if="expensesByCategory.length === 0" class="text-center py-8 text-gray-500">
+          <div v-if="(expensesByCategory?.length || 0) === 0" class="text-center py-8 text-gray-500">
             Nenhuma despesa registrada
           </div>
           <div
-            v-for="expense in expensesByCategory"
+            v-for="expense in expensesByCategory || []"
             :key="expense.category"
             class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
           >
@@ -139,6 +139,7 @@
 <script setup lang="ts">
 import { Chart, registerables } from 'chart.js'
 import { Bar } from 'vue-chartjs'
+import { resolveComponent } from 'vue'
 
 Chart.register(...registerables)
 
@@ -177,7 +178,8 @@ const invoiceColumns = [
       cancelled: 'neutral',
       barter: 'info',
     }
-    return h(UBadge, { color: colors[row.status] || 'neutral' }, () => row.status)
+    const BadgeComponent = resolveComponent('UBadge') as any
+    return h(BadgeComponent, { color: colors[row.status] || 'neutral' }, () => row.status)
   }},
 ]
 

@@ -1,0 +1,52 @@
+﻿[36mi[39m Nuxt Icon server bundle mode is set to [36mlocal[39m
+pages/dashboard/index.vue(14,33): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/dashboard/index.vue(28,18): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/dashboard/index.vue(41,51): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/dashboard/index.vue(42,18): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/dashboard/index.vue(56,18): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/dashboard/index.vue(81,22): error TS18047: '__VLS_ctx.upcomingInvoices' is possibly 'null'.
+pages/dashboard/index.vue(108,20): error TS2322: Type 'SerializeObject<{ id: any; amount: any; dueDate: any; status: any; clientName: any; establishmentName: any; }>[] | null' is not assignable to type 'SerializeObject<{ id: any; amount: any; dueDate: any; status: any; clientName: any; establishmentName: any; }>[] | undefined'.
+  Type 'null' is not assignable to type 'SerializeObject<{ id: any; amount: any; dueDate: any; status: any; clientName: any; establishmentName: any; }>[] | undefined'.
+pages/dashboard/index.vue(117,22): error TS18047: '__VLS_ctx.expensesByCategory' is possibly 'null'.
+pages/dashboard/index.vue(180,14): error TS2304: Cannot find name 'UBadge'.
+pages/financial/index.vue(19,33): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/financial/index.vue(33,33): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/financial/index.vue(46,51): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/financial/index.vue(47,33): error TS18047: '__VLS_ctx.stats' is possibly 'null'.
+pages/financial/index.vue(60,20): error TS2322: Type 'any[] | null' is not assignable to type 'any[] | undefined'.
+  Type 'null' is not assignable to type 'any[] | undefined'.
+pages/financial/index.vue(62,35): error TS2339: Property 'type' does not exist on type 'Row<any>'.
+pages/financial/index.vue(63,24): error TS2339: Property 'type' does not exist on type 'Row<any>'.
+pages/financial/index.vue(67,22): error TS2339: Property 'categoryName' does not exist on type 'Row<any>'.
+pages/invoices/index.vue(33,25): error TS2339: Property 'status' does not exist on type 'Row<any>'.
+pages/invoices/index.vue(223,14): error TS2304: Cannot find name 'UBadge'.
+server/api/dashboard/expenses-by-category.get.ts(23,29): error TS2339: Property 'name' does not exist on type '{ name: any; }[]'.
+server/api/dashboard/recent-invoices.get.ts(28,27): error TS2339: Property 'name' does not exist on type '{ name: any; }[]'.
+server/api/dashboard/recent-invoices.get.ts(29,41): error TS2339: Property 'name' does not exist on type '{ name: any; }[]'.
+server/api/dashboard/stats.get.ts(20,54): error TS2339: Property 'status' does not exist on type '{ amount: any; }'.
+server/api/dashboard/stats.get.ts(24,49): error TS2339: Property 'status' does not exist on type '{ amount: any; }'.
+server/api/dashboard/stats.get.ts(24,75): error TS2339: Property 'status' does not exist on type '{ amount: any; }'.
+server/api/dashboard/upcoming-invoices.get.ts(31,27): error TS2339: Property 'name' does not exist on type '{ name: any; }[]'.
+server/api/dashboard/upcoming-invoices.get.ts(32,41): error TS2339: Property 'name' does not exist on type '{ name: any; }[]'.
+node.exe : 
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[41m[30m ERROR [39m[49m Process exited with non-zero status (2)
+
+    [90mat [39mV._waitForOutput 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/tinyexec/dist/main.mjs:584:92[39m)
+    [90mat [39mprocess.processTicksAndRejections ([36mnode:internal/process/task_queues:105:5[39m)
+    [90mat [39masync Object.run 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/@nuxt/cli/dist/typecheck-DzNAMeid.mjs:66:3[39m)
+    [90mat [39masync runCommand 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/citty/dist/index.mjs:228:47[39m)
+    [90mat [39masync runCommand 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/citty/dist/index.mjs:217:5[39m)
+    [90mat [39masync runMain 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/citty/dist/index.mjs:394:10[39m) 
+
+

@@ -1,0 +1,193 @@
+﻿
+> build
+> nuxt build
+
+T  [36mBuilding Nuxt for production...[39m
+|
+ÔÇó  [32mNuxt [1m3.21.2[22m[39m[90m (with [39m[90mNitro [1m2.13.3[22m[39m[90m, Vite [1m7.3.2[22m[39m[90m and Vue [1m3.5.32[22m[39m[90m)[39m
+[36mi[39m Nuxt Icon server bundle mode is set to [36mlocal[39m
+|
+ÔÇó  Nitro preset: [36mvercel[39m
+[36mi[39m Building client...
+[36mi[39m [36mvite v7.3.2 [32mbuilding client environment for production...[36m[39m
+[36mi[39m transforming...
+[36mi[39m [32mÔ£ô[39m 775 modules transformed.
+[36mi[39m rendering chunks...
+[36mi[39m computing gzip size...
+[36mi[39m [2m.nuxt/dist/client/[22m[32mmanifest.json                 [39m[1m[2m  7.46 kB[22m[1m[22m[2m Ôöé gzip:  1.03 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[35m_nuxt/error-500.I1Dtv2V5.css  [39m[1m[2m  1.88 kB[22m[1m[22m[2m Ôöé gzip:  0.72 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[35m_nuxt/error-404.DL_4WIao.css  [39m[1m[2m  3.53 kB[22m[1m[22m[2m Ôöé gzip:  1.09 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[35m_nuxt/entry.BcJLX1r6.css      [39m[1m[2m162.36 kB[22m[1m[22m[2m Ôöé gzip: 20.90 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/BcG_jL_S.js             [39m[1m[2m  0.32 kB[22m[1m[22m[2m Ôöé gzip:  0.25 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/DqB6J6mu.js             [39m[1m[2m  2.50 kB[22m[1m[22m[2m Ôöé gzip:  1.17 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/07WvFHia.js             [39m[1m[2m  3.37 kB[22m[1m[22m[2m Ôöé gzip:  1.52 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/Bdo9kafY.js             [39m[1m[2m  3.74 kB[22m[1m[22m[2m Ôöé gzip:  1.70 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/CDPXxPkK.js             [39m[1m[2m  5.37 kB[22m[1m[22m[2m Ôöé gzip:  2.12 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/DCZ1fUVm.js             [39m[1m[2m  5.47 kB[22m[1m[22m[2m Ôöé gzip:  1.52 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/DoM3WY8U.js             [39m[1m[2m  5.63 kB[22m[1m[22m[2m Ôöé gzip:  2.19 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/D7ahKYa5.js             [39m[1m[2m  6.46 kB[22m[1m[22m[2m Ôöé gzip:  2.12 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/DNKaZo2m.js             [39m[1m[2m  7.71 kB[22m[1m[22m[2m Ôöé gzip:  3.33 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/DyUDArXd.js             [39m[1m[2m  8.21 kB[22m[1m[22m[2m Ôöé gzip:  2.70 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/C4OJ4N64.js             [39m[1m[2m  8.85 kB[22m[1m[22m[2m Ôöé gzip:  3.12 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/DRDCLDLb.js             [39m[1m[2m 12.33 kB[22m[1m[22m[2m Ôöé gzip:  3.46 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/NAXexsiA.js             [39m[1m[2m 15.97 kB[22m[1m[22m[2m Ôöé gzip:  5.06 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/B_1Gzr6b.js             [39m[1m[2m 16.24 kB[22m[1m[22m[2m Ôöé gzip:  6.07 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/CPvOlCXd.js             [39m[1m[2m 25.05 kB[22m[1m[22m[2m Ôöé gzip:  7.60 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/Dy7T8Ivy.js             [39m[1m[2m 30.89 kB[22m[1m[22m[2m Ôöé gzip: 11.64 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/C5JuBbiQ.js             [39m[1m[2m 32.15 kB[22m[1m[22m[2m Ôöé gzip:  8.47 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/COtW4kqa.js             [39m[1m[2m 34.78 kB[22m[1m[22m[2m Ôöé gzip: 10.07 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/Dv-JVlzR.js             [39m[1m[2m 45.53 kB[22m[1m[22m[2m Ôöé gzip: 15.31 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/UZicCZ-r.js             [39m[1m[2m 70.25 kB[22m[1m[22m[2m Ôöé gzip: 17.42 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/CSczEx3H.js             [39m[1m[2m 78.64 kB[22m[1m[22m[2m Ôöé gzip: 22.93 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/Stok8hwI.js             [39m[1m[2m 83.85 kB[22m[1m[22m[2m Ôöé gzip: 19.04 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/Bcjh2pZL.js             [39m[1m[2m206.64 kB[22m[1m[22m[2m Ôöé gzip: 70.71 kB[22m
+[36mi[39m [2m.nuxt/dist/client/[22m[36m_nuxt/Cy5sYECf.js             [39m[1m[2m217.09 kB[22m[1m[22m[2m Ôöé gzip: 81.51 kB[22m
+[36mi[39m [32mÔ£ô built in 6.41s[39m
+[32mÔêÜ[39m Client built in 6430ms
+[36mi[39m Building server...
+[36mi[39m [36mvite v7.3.2 [32mbuilding ssr environment for production...[36m[39m
+[36mi[39m transforming...
+[36mi[39m [32mÔ£ô[39m 1 modules transformed.
+[36mi[39m rendering chunks...
+[36mi[39m [32mÔ£ô built in 11ms[39m
+[32mÔêÜ[39m Server built in 106ms
+[90m[[90m@nuxt/fonts[90m][39m [36mi[39m Downloading fonts...
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/plusjakartasans/v12/LDIuaomQNQcsA88c7O9yZ4KMCoOg4Koz4yOqhNnZR-AHYA.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/plusjakartasans/v12/LDIuaomQNQcsA88c7O9yZ4KMCoOg4Koz4yGqhNnZR-AHYA.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/plusjakartasans/v12/LDIuaomQNQcsA88c7O9yZ4KMCoOg4Koz4yCqhNnZR-AHYA.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/plusjakartasans/v12/LDIuaomQNQcsA88c7O9yZ4KMCoOg4Koz4y6qhNnZR-A.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko70yygg_vbd-E.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko50yygg_vbd-E.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko40yygg_vbd-E.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yygg_vb.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=LDIZaomQNQcsA88c7O9yZ4KMCoOg4KozySKCdSNG9OcqYQ0lCR_T&skey=a46c6b4b1929a4fb&v=v12[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=LDIZaomQNQcsA88c7O9yZ4KMCoOg4KozySKCdSNG9OcqYQ0XCR_T&skey=a46c6b4b1929a4fb&v=v12[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=LDIZaomQNQcsA88c7O9yZ4KMCoOg4KozySKCdSNG9OcqYQ37Dh_T&skey=a46c6b4b1929a4fb&v=v12[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=LDIZaomQNQcsA88c7O9yZ4KMCoOg4KozySKCdSNG9OcqYQ3CDh_T&skey=a46c6b4b1929a4fb&v=v12[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_qU7NSQ&skey=ca4b9e62a7d41df5&v=v12[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_m07NSQ&skey=ca4b9e62a7d41df5&v=v12[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_d0nNSQ&skey=ca4b9e62a7d41df5&v=v12[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_TknNSQ&skey=ca4b9e62a7d41df5&v=v12[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC53FwrK3iLTcvneQg7Ca725JhhKnNqk6L0UUMbndwVgHU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC53FwrK3iLTcvneQg7Ca725JhhKnNqk6L9UUMbndwVgHU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC53FwrK3iLTcvneQg7Ca725JhhKnNqk6L1UUMbndwVgHU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC53FwrK3iLTcvneQg7Ca725JhhKnNqk6L6UUMbndwVgHU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC53FwrK3iLTcvneQg7Ca725JhhKnNqk6L2UUMbndwVgHU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC53FwrK3iLTcvneQg7Ca725JhhKnNqk6L3UUMbndwVgHU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC53FwrK3iLTcvneQg7Ca725JhhKnNqk6L5UUMbndwV.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5n-wU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7W0Q5n-wU.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTc2dthjg&skey=e5dfd0c3910c7ec9&v=v20[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTc69thjg&skey=e5dfd0c3910c7ec9&v=v20[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTcB9xhjg&skey=e5dfd0c3910c7ec9&v=v20[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTcPtxhjg&skey=e5dfd0c3910c7ec9&v=v20[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZs&skey=c491285d6722e4fa&v=v20[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZs&skey=c491285d6722e4fa&v=v20[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZs&skey=c491285d6722e4fa&v=v20[39m
+[90m[[90m@nuxt/fonts[90m][39m [90m  Ôö£ÔöÇ https://fonts.gstatic.com/l/font?kit=UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZs&skey=c491285d6722e4fa&v=v20[39m
+[90m[[90m@nuxt/fonts[90m][39m [32mÔêÜ[39m Fonts downloaded and cached.
+[90m[[90mnitro[90m][39m [32mÔêÜ[39m Generated public [36m.vercel/output/static[39m
+[90m[[90mnitro[90m][39m [36mi[39m Building Nuxt Nitro server (preset: [36mvercel[39m, compatibility date: [36m2024-12-24[39m)
+node.exe : (node:44312) [DEP0155] DeprecationWarning: Use of deprecated trailing slash pattern mapping "./" in the 
+"exports" field module resolution of the package at 
+C:\Users\itach\Documents\loopin-crm\node_modules\@iconify\utils\package.json imported from 
+C:\Users\itach\Documents\loopin-crm\node_modules\@nuxt\icon\dist\runtime\server\api.js. Mapping specifiers ending in 
+"/" is no longer supported.
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:44312) [D...nger supported.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:44312) [DEP0155] DeprecationWarning: Use of deprecated trailing slash pattern mapping "./" in the "exports" 
+field module resolution of the package at C:\Users\itach\Documents\loopin-crm\node_modules\@vue\shared\package.json 
+imported from 
+C:\Users\itach\Documents\loopin-crm\node_modules\@nuxt\nitro-server\dist\runtime\templates\error-500.mjs. Mapping 
+specifiers ending in "/" is no longer supported.
+[90m[[90mnitro[90m][39m [32mÔêÜ[39m Nuxt Nitro server built
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/_/error-500.mjs (4.9 kB)[39m[90m (2.06 kB gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/_/error-500.mjs.map (188 B)[39m[90m (154 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/_/nitro.mjs (160 kB)[39m[90m (40 kB gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/_/nitro.mjs.map (3.16 kB)[39m[90m (758 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/build/client.precomputed.mjs (16.8 kB)[39m[90m (1.8 kB gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/build/client.precomputed.mjs.map (16.3 kB)[39m[90m (818 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/auth/login.post.mjs (1.31 kB)[39m[90m (565 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/auth/login.post.mjs.map (1.18 kB)[39m[90m (323 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/auth/logout.post.mjs (462 B)[39m[90m (253 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/auth/logout.post.mjs.map (220 B)[39m[90m (155 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/auth/me.get.mjs (948 B)[39m[90m (451 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/auth/me.get.mjs.map (719 B)[39m[90m (247 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/auth/setup.post.mjs (1.37 kB)[39m[90m (590 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/auth/setup.post.mjs.map (1.13 kB)[39m[90m (341 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/clients/_id_.delete.mjs (865 B)[39m[90m (435 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/clients/_id_.delete.mjs.map (693 B)[39m[90m (256 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/clients/_id_.get.mjs (1.28 kB)[39m[90m (558 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/clients/_id_.get.mjs.map (1.18 kB)[39m[90m (335 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/clients/_id_.put.mjs (1.1 kB)[39m[90m (523 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/clients/_id_.put.mjs.map (972 B)[39m[90m (300 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/expenses-by-category.get.mjs (1.23 kB)[39m[90m (630 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/expenses-by-category.get.mjs.map (1.2 kB)[39m[90m (351 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/monthly-revenue.get.mjs (1.31 kB)[39m[90m (649 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/monthly-revenue.get.mjs.map (1.36 kB)[39m[90m (360 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/recent-invoices.get.mjs (1.1 kB)[39m[90m (508 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/recent-invoices.get.mjs.map (933 B)[39m[90m (299 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/stats.get.mjs (1.6 kB)[39m[90m (594 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/stats.get.mjs.map (1.5 kB)[39m[90m (358 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/upcoming-invoices.get.mjs (1.3 kB)[39m[90m (613 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/dashboard/upcoming-invoices.get.mjs.map (1.23 kB)[39m[90m (354 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/establishments/_id_.delete.mjs (872 B)[39m[90m (439 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/establishments/_id_.delete.mjs.map (701 B)[39m[90m (262 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/establishments/_id_.put.mjs (1.04 kB)[39m[90m (513 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/establishments/_id_.put.mjs.map (890 B)[39m[90m (302 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/_id_.delete.mjs (870 B)[39m[90m (438 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/_id_.delete.mjs.map (695 B)[39m[90m (256 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/_id_.put.mjs (1.06 kB)[39m[90m (513 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/_id_.put.mjs.map (904 B)[39m[90m (299 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/cashflow.get.mjs (1.59 kB)[39m[90m (678 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/cashflow.get.mjs.map (1.75 kB)[39m[90m (375 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/categories.get.mjs (729 B)[39m[90m (394 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/categories.get.mjs.map (522 B)[39m[90m (236 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/stats.get.mjs (1.19 kB)[39m[90m (531 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/financial/stats.get.mjs.map (1.12 kB)[39m[90m (302 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.get.mjs (1.16 kB)[39m[90m (529 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.get.mjs.map (927 B)[39m[90m (306 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.get2.mjs (904 B)[39m[90m (477 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.get2.mjs.map (751 B)[39m[90m (285 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.get3.mjs (913 B)[39m[90m (480 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.get3.mjs.map (745 B)[39m[90m (280 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.get4.mjs (1.02 kB)[39m[90m (503 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.get4.mjs.map (840 B)[39m[90m (288 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.post.mjs (1.09 kB)[39m[90m (519 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.post.mjs.map (938 B)[39m[90m (292 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.post2.mjs (1.06 kB)[39m[90m (519 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.post2.mjs.map (882 B)[39m[90m (298 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.post3.mjs (1.13 kB)[39m[90m (541 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.post3.mjs.map (951 B)[39m[90m (300 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.post4.mjs (1.18 kB)[39m[90m (558 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/index.post4.mjs.map (961 B)[39m[90m (309 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/invoices/_id_.delete.mjs (866 B)[39m[90m (436 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/invoices/_id_.delete.mjs.map (694 B)[39m[90m (257 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/invoices/_id_.pay.post.mjs (953 B)[39m[90m (492 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/invoices/_id_.pay.post.mjs.map (774 B)[39m[90m (278 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/invoices/_id_.put.mjs (1.12 kB)[39m[90m (535 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/invoices/_id_.put.mjs.map (954 B)[39m[90m (311 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/reset-password.get.mjs (1.02 kB)[39m[90m (468 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/reset-password.get.mjs.map (760 B)[39m[90m (283 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/setup.get.mjs (1.43 kB)[39m[90m (564 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/api/setup.get.mjs.map (1.18 kB)[39m[90m (337 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/renderer.mjs (13.4 kB)[39m[90m (4.62 kB gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/routes/renderer.mjs.map (682 B)[39m[90m (245 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/virtual/_virtual_spa-template.mjs (94 B)[39m[90m (100 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/chunks/virtual/_virtual_spa-template.mjs.map (90 B)[39m[90m (98 B gzip)[39m
+[90m  Ôö£ÔöÇ .vercel/output/functions/__fallback.func/index.mjs (1.51 kB)[39m[90m (633 B gzip)[39m
+[90m  ÔööÔöÇ .vercel/output/functions/__fallback.func/package.json (1.13 kB)[39m[90m (432 B gzip)[39m
+[36m╬ú Total size:[39m 3.04 MB (741 kB gzip)
+[90m[[90mnitro[90m][39m [32mÔêÜ[39m You can deploy this build using [36mnpx vercel deploy --prebuilt[39m
+|
+ÔÇö  Ô£¿ Build complete!

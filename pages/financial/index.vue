@@ -16,7 +16,7 @@
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Entradas do Mês</p>
             <p class="text-2xl font-bold text-green-600">
-              {{ formatCurrency(stats.monthIncome) }}
+              {{ formatCurrency(stats?.monthIncome || 0) }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
@@ -30,7 +30,7 @@
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Despesas do Mês</p>
             <p class="text-2xl font-bold text-red-600">
-              {{ formatCurrency(stats.monthExpenses) }}
+              {{ formatCurrency(stats?.monthExpenses || 0) }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
@@ -43,8 +43,8 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 dark:text-gray-400">Saldo do Mês</p>
-            <p class="text-2xl font-bold" :class="stats.monthBalance >= 0 ? 'text-green-600' : 'text-red-600'">
-              {{ formatCurrency(stats.monthBalance) }}
+            <p class="text-2xl font-bold" :class="(stats?.monthBalance || 0) >= 0 ? 'text-green-600' : 'text-red-600'">
+              {{ formatCurrency(stats?.monthBalance || 0) }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
@@ -57,14 +57,14 @@
     <UTabs :items="tabs" class="mb-6">
       <template #transactions>
         <UCard class="bg-white dark:bg-gray-900">
-          <UTable :data="transactions" :columns="columns" class="w-full">
+          <UTable :data="transactions || []" :columns="columns" class="w-full">
             <template #type="{ row }">
-              <UBadge :color="row.type === 'income' ? 'success' : 'error'">
-                {{ row.type === 'income' ? 'Entrada' : 'Despesa' }}
+              <UBadge :color="(row as any).type === 'income' ? 'success' : 'error'">
+                {{ (row as any).type === 'income' ? 'Entrada' : 'Despesa' }}
               </UBadge>
             </template>
             <template #categoryName="{ row }">
-              {{ row.categoryName || '-' }}
+              {{ (row as any).categoryName || '-' }}
             </template>
             <template #actions="{ row }">
               <div class="flex items-center gap-2">
@@ -72,14 +72,14 @@
                   variant="ghost"
                   size="sm"
                   icon="i-lucide-pencil"
-                  @click="openModal(row)"
+                  @click="openModal(row as any)"
                 />
                 <UButton
                   variant="ghost"
                   color="error"
                   size="sm"
                   icon="i-lucide-trash-2"
-                  @click="confirmDelete(row)"
+                  @click="confirmDelete(row as any)"
                 />
               </div>
             </template>

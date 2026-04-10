@@ -20,7 +20,7 @@ export default defineEventHandler(async () => {
 
   const byCategory: Record<string, number> = {}
   data?.forEach(t => {
-    const cat = t.category?.name || 'Sem categoria'
+    const cat = (t.category as any)?.name || 'Sem categoria'
     byCategory[cat] = (byCategory[cat] || 0) + Number(t.amount)
   })
 

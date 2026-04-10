@@ -28,7 +28,7 @@ export default defineEventHandler(async () => {
     id: i.id,
     amount: i.amount,
     dueDate: i.due_date,
-    clientName: i.client?.name,
-    establishmentName: i.establishment?.name,
+    clientName: (i.client as any)?.name,
+    establishmentName: (i.establishment as any)?.name,
   })) || []
 })

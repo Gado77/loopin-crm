@@ -1,0 +1,28 @@
+﻿[36mi[39m Nuxt Icon server bundle mode is set to [36mlocal[39m
+pages/dashboard/index.vue(86,27): error TS2339: Property 'id' does not exist on type 'SerializeObject<{ id: any; amount: any; dueDate: any; clientName: any; establishmentName: any; }>'.
+pages/dashboard/index.vue(90,79): error TS2339: Property 'clientName' does not exist on type 'SerializeObject<{ id: any; amount: any; dueDate: any; clientName: any; establishmentName: any; }>'.
+pages/dashboard/index.vue(91,59): error TS2339: Property 'establishmentName' does not exist on type 'SerializeObject<{ id: any; amount: any; dueDate: any; clientName: any; establishmentName: any; }>'.
+pages/dashboard/index.vue(94,94): error TS2339: Property 'amount' does not exist on type 'SerializeObject<{ id: any; amount: any; dueDate: any; clientName: any; establishmentName: any; }>'.
+pages/dashboard/index.vue(95,71): error TS2339: Property 'dueDate' does not exist on type 'SerializeObject<{ id: any; amount: any; dueDate: any; clientName: any; establishmentName: any; }>'.
+node.exe : 
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[41m[30m ERROR [39m[49m Process exited with non-zero status (2)
+
+    [90mat [39mV._waitForOutput 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/tinyexec/dist/main.mjs:584:92[39m)
+    [90mat [39mprocess.processTicksAndRejections ([36mnode:internal/process/task_queues:105:5[39m)
+    [90mat [39masync Object.run 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/@nuxt/cli/dist/typecheck-DzNAMeid.mjs:66:3[39m)
+    [90mat [39masync runCommand 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/citty/dist/index.mjs:228:47[39m)
+    [90mat [39masync runCommand 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/citty/dist/index.mjs:217:5[39m)
+    [90mat [39masync runMain 
+([36m/C:/Users/itach/Documents/loopin-crm/node_modules/citty/dist/index.mjs:394:10[39m) 
+
+

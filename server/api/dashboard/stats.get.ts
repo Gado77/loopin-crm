@@ -14,7 +14,7 @@ export default defineEventHandler(async () => {
 
   const { data: overdueData } = await db
     .from('invoices')
-    .select('amount')
+    .select('amount, status')
 
   const pendingInvoices = pendingData?.reduce((sum, i) => sum + Number(i.amount), 0) || 0
   const overdueInvoices = overdueData?.filter(i => i.status === 'overdue')

@@ -30,25 +30,25 @@
         <template #actions="{ row }">
           <div class="flex items-center gap-2">
             <UButton
-              v-if="row.status === 'pending'"
+              v-if="(row as any).status === 'pending'"
               variant="ghost"
               color="success"
               size="sm"
               icon="i-lucide-check"
-              @click="markAsPaid(row)"
+              @click="markAsPaid(row as any)"
             />
             <UButton
               variant="ghost"
               size="sm"
               icon="i-lucide-pencil"
-              @click="openModal(row)"
+              @click="openModal(row as any)"
             />
             <UButton
               variant="ghost"
               color="error"
               size="sm"
               icon="i-lucide-trash-2"
-              @click="confirmDelete(row)"
+              @click="confirmDelete(row as any)"
             />
           </div>
         </template>
@@ -133,6 +133,7 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
+import { resolveComponent } from 'vue'
 
 definePageMeta({
   middleware: 'auth',
@@ -220,7 +221,8 @@ const columns = [
       cancelled: 'Cancelada',
       barter: 'Barter',
     }
-    return h(UBadge, { color: colors[row.status] || 'neutral' }, () => labels[row.status] || row.status)
+    const BadgeComponent = resolveComponent('UBadge') as any
+    return h(BadgeComponent, { color: colors[row.status] || 'neutral' }, () => labels[row.status] || row.status)
   }},
 ]
 
