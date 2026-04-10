@@ -1,5 +1,21 @@
 -- Loopin CRM Database Schema for Supabase PostgreSQL (DOOH DOOH Media Network)
 
+-- ==========================================
+-- RESET DE BANCO DE DADOS (ATENÇÃO: Isso limpa as tabelas velhas para aplicar a nova estrutura!)
+-- ==========================================
+DROP TABLE IF EXISTS campaign_establishments CASCADE;
+DROP TABLE IF EXISTS campaigns CASCADE;
+DROP TABLE IF EXISTS invoices CASCADE;
+DROP TABLE IF EXISTS establishments CASCADE;
+DROP TABLE IF EXISTS transactions CASCADE;
+DROP TABLE IF EXISTS expense_categories CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- ==========================================
+-- CRIAÇÃO DAS TABELAS
+-- ==========================================
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
