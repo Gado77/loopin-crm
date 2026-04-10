@@ -11,13 +11,21 @@ export default defineEventHandler(async () => {
     .eq('type', 'income')
     .gte('date', monthStart)
 
+  const { data: paidInvoicesData } = await db
+    .from('invoices')
+    .select('amount')
+    .eq('status', 'paid')
+    .gte('due_date', monthStart)
+
   const { data: expenseData } = await db
     .from('transactions')
     .select('amount')
     .eq('type', 'expense')
     .gte('date', monthStart)
 
-  const monthIncome = incomeData?.reduce((sum, t) => sum + Number(t.amount), 0) || 0
+  const baseIncome = incomeData?.reduce((sum, t) => sum + Number(t.amount), 0) || 0
+  const invoiceIncome = paidInvoicesData?.reduce((sum, t) => sum + Number(t.amount), 0) || 0
+  const monthIncome = baseIncome + invoiceIncome
   const monthExpenses = expenseData?.reduce((sum, t) => sum + Number(t.amount), 0) || 0
 
   return {
