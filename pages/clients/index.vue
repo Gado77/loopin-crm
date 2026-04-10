@@ -255,20 +255,20 @@ definePageMeta({ middleware: 'auth' })
 const toast = useToast()
 
 const schema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
-  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  name: z.string().min(1, 'Nome Principal é obrigatório'),
+  email: z.string().optional().or(z.literal('')),
   phone: z.string().optional(),
   document: z.string().optional(),
   address: z.string().optional(),
   segment: z.string().optional(),
   leadSource: z.string().optional(),
   planType: z.string().optional(),
-  monthlyFee: z.number().min(0).default(0),
+  monthlyFee: z.coerce.number().optional().default(0),
   startDate: z.string().optional(),
   renewalDate: z.string().optional(),
-  status: z.string().default('active'),
+  status: z.string().optional().default('active'),
   notes: z.string().optional(),
-  graceDays: z.number().min(0).default(30),
+  graceDays: z.coerce.number().optional().default(30),
 })
 
 type FormState = z.infer<typeof schema>
