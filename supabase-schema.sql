@@ -126,7 +126,7 @@ WHERE NOT EXISTS (SELECT 1 FROM expense_categories);
 
 -- Insert default admin user (password: admin123)
 INSERT INTO users (id, email, password_hash, name)
-SELECT gen_random_uuid(), 'admin@loopin.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.VTtYWPQFQfN6Fe', 'Administrador'
+SELECT gen_random_uuid(), 'admin@loopin.com', '$2a$10$mJwesRy75Sokw0HfxhA3Euz9hmY2ABD.dNUwFAURGsgcpv4WSMraG', 'Administrador'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@loopin.com');
 
 -- Row Level Security (RLS)
