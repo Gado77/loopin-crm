@@ -219,6 +219,7 @@ const columns = [
   { accessorKey: 'due_date', header: 'Vencimento', cell: (row: any) => formatDate(row.due_date) },
   { accessorKey: 'payment_method', header: 'Meio Pgto', cell: (row: any) => row.payment_method || '-' },
   { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'actions' },
 ]
 
 const filteredInvoices = computed(() => {

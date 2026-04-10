@@ -345,6 +345,7 @@ const columns = [
   { accessorKey: 'plan_type', header: 'Plano', cell: (row: any) => row.plan_type || '-' },
   { accessorKey: 'monthly_fee', header: 'Mensalidade', cell: (row: any) => `R$ ${(row.monthly_fee || 0).toFixed(2)}` },
   { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'actions' },
 ]
 
 const filteredClients = computed(() => {

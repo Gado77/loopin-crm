@@ -194,6 +194,7 @@ const columns = [
   { accessorKey: 'screens_count', header: 'Telas', cell: (row: any) => `${row.screens_count || 1}x` },
   { accessorKey: 'location_cost', header: 'Custo do Ponto', cell: (row: any) => `R$ ${(row.location_cost || 0).toFixed(2)}` },
   { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'actions' },
 ]
 
 const filteredEstablishments = computed(() => {

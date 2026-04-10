@@ -218,6 +218,7 @@ const columns = [
   { accessorKey: 'ad_type', header: 'Formato', cell: (row: any) => row.ad_type || '-' },
   { accessorKey: 'end_date', header: 'Fim', cell: (row: any) => formatDate(row.end_date) },
   { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'actions' },
 ]
 
 const filteredCampaigns = computed(() => {
