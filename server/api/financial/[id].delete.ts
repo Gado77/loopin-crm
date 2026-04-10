@@ -1,7 +1,6 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler((event) => {
-  const db = useDb()
+export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
 
   if (!id) {
@@ -11,15 +10,18 @@ export default defineEventHandler((event) => {
     })
   }
 
-  const existing = db.prepare('SELECT * FROM transactions WHERE id = ?').get(id)
-  if (!existing) {
+  const db = useDb()
+  const { error } = await db
+    .from('transactions')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
     throw createError({
-      statusCode: 404,
-      message: 'Transação não encontrada',
+      statusCode: 500,
+      message: error.message,
     })
   }
-
-  db.prepare('DELETE FROM transactions WHERE id = ?').run(id)
 
   return { success: true }
 })

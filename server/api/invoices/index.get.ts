@@ -1,17 +1,27 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   const db = useDb()
-  const invoices = db.prepare(`
-    SELECT 
-      i.*,
-      c.name as clientName,
-      e.name as establishmentName
-    FROM invoices i
-    LEFT JOIN clients c ON i.client_id = c.id
-    LEFT JOIN establishments e ON i.establishment_id = e.id
-    ORDER BY i.due_date ASC
-  `).all()
+  
+  const { data, error } = await db
+    .from('invoices')
+    .select(`
+      *,
+      client:clients(name),
+      establishment:establishments(name)
+    `)
+    .order('due_date', { ascending: true })
 
-  return invoices
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      message: error.message,
+    })
+  }
+
+  return data?.map(i => ({
+    ...i,
+    clientName: i.client?.name,
+    establishmentName: i.establishment?.name,
+  })) || []
 })

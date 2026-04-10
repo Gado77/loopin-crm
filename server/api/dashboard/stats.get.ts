@@ -1,36 +1,35 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   const db = useDb()
+
+  const { count: totalClients } = await db
+    .from('clients')
+    .select('*', { count: 'exact', head: true })
+
+  const { data: pendingData } = await db
+    .from('invoices')
+    .select('amount')
+    .eq('status', 'pending')
+
+  const { data: overdueData } = await db
+    .from('invoices')
+    .select('amount')
+
+  const pendingInvoices = pendingData?.reduce((sum, i) => sum + Number(i.amount), 0) || 0
+  const overdueInvoices = overdueData?.filter(i => i.status === 'overdue')
+  const overdueCount = overdueInvoices?.length || 0
+  const overdueTotal = overdueInvoices?.reduce((sum, i) => sum + Number(i.amount), 0) || 0
   
-  const clients = db.prepare('SELECT COUNT(*) as count FROM clients').get() as { count: number }
-  
-  const pendingInvoices = db.prepare(`
-    SELECT COALESCE(SUM(amount), 0) as total 
-    FROM invoices 
-    WHERE status = 'pending'
-  `).get() as { total: number }
-
-  const overdueInvoices = db.prepare(`
-    SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total
-    FROM invoices 
-    WHERE status = 'overdue'
-  `).get() as { count: number; total: number }
-
-  const allInvoices = db.prepare(`
-    SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total
-    FROM invoices 
-    WHERE status IN ('pending', 'overdue')
-  `).get() as { count: number; total: number }
-
-  const overduePercentage = allInvoices.count > 0
-    ? Math.round((overdueInvoices.count / allInvoices.count) * 100)
+  const allPending = overdueData?.filter(i => i.status === 'pending' || i.status === 'overdue') || []
+  const overduePercentage = allPending.length > 0
+    ? Math.round((overdueCount / allPending.length) * 100)
     : 0
 
   return {
-    totalClients: clients.count,
-    totalReceivable: pendingInvoices.total + overdueInvoices.total,
-    overdueInvoices: overdueInvoices.count,
+    totalClients: totalClients || 0,
+    totalReceivable: pendingInvoices + overdueTotal,
+    overdueInvoices: overdueCount,
     overduePercentage,
   }
 })

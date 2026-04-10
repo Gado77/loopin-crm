@@ -1,6 +1,6 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   const db = useDb()
   const labels: string[] = []
   const income: number[] = []
@@ -16,20 +16,22 @@ export default defineEventHandler(() => {
     const monthName = date.toLocaleDateString('pt-BR', { month: 'short' })
     labels.push(monthName.charAt(0).toUpperCase() + monthName.slice(1))
 
-    const incomeResult = db.prepare(`
-      SELECT COALESCE(SUM(amount), 0) as total
-      FROM transactions
-      WHERE type = 'income' AND date >= ? AND date < ?
-    `).get(monthStart, monthEnd) as { total: number }
+    const { data: incomeData } = await db
+      .from('transactions')
+      .select('amount')
+      .eq('type', 'income')
+      .gte('date', monthStart)
+      .lt('date', monthEnd)
 
-    const expenseResult = db.prepare(`
-      SELECT COALESCE(SUM(amount), 0) as total
-      FROM transactions
-      WHERE type = 'expense' AND date >= ? AND date < ?
-    `).get(monthStart, monthEnd) as { total: number }
+    const { data: expenseData } = await db
+      .from('transactions')
+      .select('amount')
+      .eq('type', 'expense')
+      .gte('date', monthStart)
+      .lt('date', monthEnd)
 
-    income.push(incomeResult.total)
-    expenses.push(expenseResult.total)
+    income.push(incomeData?.reduce((sum, t) => sum + Number(t.amount), 0) || 0)
+    expenses.push(expenseData?.reduce((sum, t) => sum + Number(t.amount), 0) || 0)
   }
 
   return { labels, income, expenses }

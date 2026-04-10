@@ -1,23 +1,31 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   const db = useDb()
-  const monthStart = new Date()
-  monthStart.setDate(1)
-  const start = monthStart.toISOString().split('T')[0]
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
 
-  const expenses = db.prepare(`
-    SELECT 
-      COALESCE(ec.name, 'Sem categoria') as category,
-      COALESCE(SUM(t.amount), 0) as amount
-    FROM transactions t
-    LEFT JOIN expense_categories ec ON t.category_id = ec.id
-    WHERE t.type = 'expense'
-    AND t.date >= ?
-    GROUP BY ec.name
-    ORDER BY amount DESC
-    LIMIT 5
-  `).all(start) as { category: string; amount: number }[]
+  const { data, error } = await db
+    .from('transactions')
+    .select(`
+      amount,
+      category:expense_categories(name)
+    `)
+    .eq('type', 'expense')
+    .gte('date', monthStart)
 
-  return expenses
+  if (error) {
+    return []
+  }
+
+  const byCategory: Record<string, number> = {}
+  data?.forEach(t => {
+    const cat = t.category?.name || 'Sem categoria'
+    byCategory[cat] = (byCategory[cat] || 0) + Number(t.amount)
+  })
+
+  return Object.entries(byCategory)
+    .map(([category, amount]) => ({ category, amount }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5)
 })

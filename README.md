@@ -5,23 +5,23 @@ Sistema de gestão financeira para a empresa Loopin.
 ## Stack
 
 - **Frontend**: Nuxt 3 + Nuxt UI
-- **Banco**: SQLite (local) - pode ser migrado para PostgreSQL
+- **Banco**: PostgreSQL (Supabase)
 - **Hospedagem**: Vercel
 
-## Setup
+## Setup Local
 
 ```bash
 # Instalar dependências
 npm install
 
+# Criar banco de dados no Supabase e rodar o schema
+# (veja supabase-schema.sql)
+
+# Criar arquivo .env.local com as variáveis
+cp .env.example .env.local
+
 # Rodar em desenvolvimento
 npm run dev
-
-# Build para produção
-npm run build
-
-# Preview produção
-npm run preview
 ```
 
 ## Login Padrão
@@ -40,8 +40,13 @@ npm run preview
 
 ## Deploy no Vercel
 
-1. Conectar repositório no Vercel
-2. Deploy automático
+1. Criar projeto no Supabase
+2. Rodar o SQL do `supabase-schema.sql` no Supabase (SQL Editor)
+3. Conectar repo ao Vercel
+4. Configurar variáveis de ambiente no Vercel:
+   - `DATABASE_URL` - URL do Supabase
+   - `SUPABASE_SERVICE_ROLE_KEY` - Service Role Key do Supabase
+   - `JWT_SECRET` - Uma chave secreta para JWT
 
 ## Estrutura
 
@@ -52,8 +57,7 @@ loopin-crm/
 ├── layouts/         # Layouts
 ├── server/
 │   ├── api/         # API routes
-│   ├── db/          # Configuração do banco
-│   └── utils/       # Utilitários (auth)
+│   └── utils/       # Utilitários (db, auth)
 ├── composables/     # Composables Vue
 └── middleware/      # Middlewares (auth)
 ```

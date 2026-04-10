@@ -1,7 +1,6 @@
 import { useDb } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
-  const db = useDb()
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
 
@@ -12,25 +11,23 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const existing = db.prepare('SELECT * FROM establishments WHERE id = ?').get(id)
-  if (!existing) {
+  const db = useDb()
+  const { error } = await db
+    .from('establishments')
+    .update({
+      client_id: body.clientId,
+      name: body.name,
+      address: body.address || null,
+      monthly_fee: body.monthlyFee || 0,
+    })
+    .eq('id', id)
+
+  if (error) {
     throw createError({
-      statusCode: 404,
-      message: 'Estabelecimento não encontrado',
+      statusCode: 500,
+      message: error.message,
     })
   }
-
-  db.prepare(`
-    UPDATE establishments 
-    SET client_id = ?, name = ?, address = ?, monthly_fee = ?
-    WHERE id = ?
-  `).run(
-    body.clientId,
-    body.name,
-    body.address || null,
-    body.monthlyFee || 0,
-    id
-  )
 
   return { id, ...body }
 })

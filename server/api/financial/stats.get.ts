@@ -1,26 +1,28 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   const db = useDb()
-  const monthStart = new Date()
-  monthStart.setDate(1)
-  const start = monthStart.toISOString().split('T')[0]
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
 
-  const income = db.prepare(`
-    SELECT COALESCE(SUM(amount), 0) as total
-    FROM transactions
-    WHERE type = 'income' AND date >= ?
-  `).get(start) as { total: number }
+  const { data: incomeData } = await db
+    .from('transactions')
+    .select('amount')
+    .eq('type', 'income')
+    .gte('date', monthStart)
 
-  const expenses = db.prepare(`
-    SELECT COALESCE(SUM(amount), 0) as total
-    FROM transactions
-    WHERE type = 'expense' AND date >= ?
-  `).get(start) as { total: number }
+  const { data: expenseData } = await db
+    .from('transactions')
+    .select('amount')
+    .eq('type', 'expense')
+    .gte('date', monthStart)
+
+  const monthIncome = incomeData?.reduce((sum, t) => sum + Number(t.amount), 0) || 0
+  const monthExpenses = expenseData?.reduce((sum, t) => sum + Number(t.amount), 0) || 0
 
   return {
-    monthIncome: income.total,
-    monthExpenses: expenses.total,
-    monthBalance: income.total - expenses.total,
+    monthIncome,
+    monthExpenses,
+    monthBalance: monthIncome - monthExpenses,
   }
 })

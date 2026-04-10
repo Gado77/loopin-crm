@@ -22,6 +22,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    databaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.DATABASE_KEY,
     jwtSecret: process.env.JWT_SECRET,
     public: {
       appName: 'Loopin CRM'

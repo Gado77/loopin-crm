@@ -1,15 +1,27 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   const db = useDb()
-  const clients = db.prepare(`
-    SELECT 
-      c.*,
-      (SELECT COUNT(*) FROM establishments WHERE client_id = c.id) as establishments_count,
-      (SELECT COUNT(*) FROM invoices WHERE client_id = c.id) as invoices_count
-    FROM clients c
-    ORDER BY c.created_at DESC
-  `).all()
+  
+  const { data: clients, error } = await db
+    .from('clients')
+    .select(`
+      *,
+      establishments_count:establishments(count),
+      invoices_count:invoices(count)
+    `)
+    .order('created_at', { ascending: false })
 
-  return clients
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      message: error.message,
+    })
+  }
+
+  return clients?.map(c => ({
+    ...c,
+    establishments_count: c.establishments_count?.[0]?.count || 0,
+    invoices_count: c.invoices_count?.[0]?.count || 0,
+  })) || []
 })

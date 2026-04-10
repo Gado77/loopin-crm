@@ -1,26 +1,34 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   const db = useDb()
   const today = new Date().toISOString().split('T')[0]
   const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-  const invoices = db.prepare(`
-    SELECT 
-      i.id,
-      i.amount,
-      i.due_date as dueDate,
-      c.name as clientName,
-      e.name as establishmentName
-    FROM invoices i
-    LEFT JOIN clients c ON i.client_id = c.id
-    LEFT JOIN establishments e ON i.establishment_id = e.id
-    WHERE i.status = 'pending'
-    AND i.due_date >= ?
-    AND i.due_date <= ?
-    ORDER BY i.due_date ASC
-    LIMIT 5
-  `).all(today, nextWeek)
+  const { data, error } = await db
+    .from('invoices')
+    .select(`
+      id,
+      amount,
+      due_date,
+      client:clients(name),
+      establishment:establishments(name)
+    `)
+    .eq('status', 'pending')
+    .gte('due_date', today)
+    .lte('due_date', nextWeek)
+    .order('due_date', { ascending: true })
+    .limit(5)
 
-  return invoices
+  if (error) {
+    return []
+  }
+
+  return data?.map(i => ({
+    id: i.id,
+    amount: i.amount,
+    dueDate: i.due_date,
+    clientName: i.client?.name,
+    establishmentName: i.establishment?.name,
+  })) || []
 })

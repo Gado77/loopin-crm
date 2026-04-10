@@ -1,4 +1,4 @@
-import { useDb } from '../../utils/db'
+import { useDb, generateId } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -12,17 +12,21 @@ export default defineEventHandler(async (event) => {
   }
 
   const db = useDb()
-  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any
+  const { data: user, error } = await db
+    .from('users')
+    .select('*')
+    .eq('email', email)
+    .single()
 
-  if (!user) {
+  if (error || !user) {
     throw createError({
       statusCode: 401,
       message: 'Credenciais inválidas',
     })
   }
 
-  const { verifyPassword, createToken } = await import('../../utils/auth')
-  const isValid = await verifyPassword(password, user.password_hash)
+  const { compare } = await import('bcryptjs')
+  const isValid = await compare(password, user.password_hash)
 
   if (!isValid) {
     throw createError({
@@ -31,10 +35,13 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const token = await createToken({
-    id: user.id,
-    email: user.email,
-  })
+  const { SignJWT } = await import('jose')
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'loopin-crm-secret')
+  const token = await new SignJWT({ sub: user.id, email: user.email })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('7d')
+    .sign(secret)
 
   return {
     token,

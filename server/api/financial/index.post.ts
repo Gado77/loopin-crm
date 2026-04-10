@@ -1,4 +1,4 @@
-import { useDb } from '../../utils/db'
+import { useDb, generateId } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -11,19 +11,25 @@ export default defineEventHandler(async (event) => {
   }
 
   const db = useDb()
-  const id = `tx-${Date.now()}`
-  
-  db.prepare(`
-    INSERT INTO transactions (id, type, category_id, description, amount, date)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(
-    id,
-    body.type,
-    body.categoryId || null,
-    body.description,
-    body.amount,
-    body.date
-  )
+  const { data, error } = await db
+    .from('transactions')
+    .insert({
+      id: generateId(),
+      type: body.type,
+      category_id: body.categoryId || null,
+      description: body.description,
+      amount: body.amount,
+      date: body.date,
+    })
+    .select()
+    .single()
 
-  return { id, ...body }
+  if (error) {
+    throw createError({
+      statusCode: 500,
+      message: error.message,
+    })
+  }
+
+  return data
 })

@@ -1,7 +1,6 @@
 import { useDb } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
-  const db = useDb()
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
 
@@ -12,27 +11,25 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const existing = db.prepare('SELECT * FROM invoices WHERE id = ?').get(id)
-  if (!existing) {
+  const db = useDb()
+  const { error } = await db
+    .from('invoices')
+    .update({
+      client_id: body.clientId,
+      establishment_id: body.establishmentId || null,
+      amount: body.amount,
+      due_date: body.dueDate,
+      status: body.status || 'pending',
+      notes: body.notes || null,
+    })
+    .eq('id', id)
+
+  if (error) {
     throw createError({
-      statusCode: 404,
-      message: 'Fatura não encontrada',
+      statusCode: 500,
+      message: error.message,
     })
   }
-
-  db.prepare(`
-    UPDATE invoices 
-    SET client_id = ?, establishment_id = ?, amount = ?, due_date = ?, status = ?, notes = ?
-    WHERE id = ?
-  `).run(
-    body.clientId,
-    body.establishmentId || null,
-    body.amount,
-    body.dueDate,
-    body.status || 'pending',
-    body.notes || null,
-    id
-  )
 
   return { id, ...body }
 })

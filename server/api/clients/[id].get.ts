@@ -1,7 +1,6 @@
 import { useDb } from '../../utils/db'
 
-export default defineEventHandler((event) => {
-  const db = useDb()
+export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
 
   if (!id) {
@@ -11,26 +10,37 @@ export default defineEventHandler((event) => {
     })
   }
 
-  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(id)
+  const db = useDb()
 
-  if (!client) {
+  const { data: client, error: clientError } = await db
+    .from('clients')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (clientError || !client) {
     throw createError({
       statusCode: 404,
       message: 'Cliente não encontrado',
     })
   }
 
-  const establishments = db.prepare(`
-    SELECT * FROM establishments WHERE client_id = ? ORDER BY created_at DESC
-  `).all(id)
+  const { data: establishments } = await db
+    .from('establishments')
+    .select('*')
+    .eq('client_id', id)
+    .order('created_at', { ascending: false })
 
-  const invoices = db.prepare(`
-    SELECT * FROM invoices WHERE client_id = ? ORDER BY created_at DESC LIMIT 20
-  `).all(id)
+  const { data: invoices } = await db
+    .from('invoices')
+    .select('*')
+    .eq('client_id', id)
+    .order('created_at', { ascending: false })
+    .limit(20)
 
   return {
     ...client,
-    establishments,
-    invoices,
+    establishments: establishments || [],
+    invoices: invoices || [],
   }
 })
