@@ -5,10 +5,7 @@ export default defineEventHandler(async () => {
   
   const { data, error } = await db
     .from('establishments')
-    .select(`
-      *,
-      client:clients(name)
-    `)
+    .select('*')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -18,8 +15,5 @@ export default defineEventHandler(async () => {
     })
   }
 
-  return data?.map(e => ({
-    ...e,
-    clientName: e.client?.name,
-  })) || []
+  return data || []
 })

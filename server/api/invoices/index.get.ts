@@ -7,8 +7,7 @@ export default defineEventHandler(async () => {
     .from('invoices')
     .select(`
       *,
-      client:clients(name),
-      establishment:establishments(name)
+      client:clients(name)
     `)
     .order('due_date', { ascending: true })
 
@@ -22,6 +21,5 @@ export default defineEventHandler(async () => {
   return data?.map(i => ({
     ...i,
     clientName: i.client?.name,
-    establishmentName: i.establishment?.name,
   })) || []
 })

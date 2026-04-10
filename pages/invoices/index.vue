@@ -2,8 +2,8 @@
   <div>
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Faturas</h1>
-        <p class="text-gray-500 dark:text-gray-400">Gerencie as faturas dos clientes</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Faturas (A Receber)</h1>
+        <p class="text-gray-500 dark:text-gray-400">Controle de recebimentos dos anunciantes</p>
       </div>
       <UButton color="primary" icon="i-lucide-plus" @click="openModal()">
         Nova Fatura
@@ -19,7 +19,7 @@
       />
       <UInput
         v-model="search"
-        placeholder="Buscar fatura..."
+        placeholder="Buscar anunciante..."
         icon="i-lucide-search"
         class="max-w-xs"
       />
@@ -27,28 +27,31 @@
 
     <UCard class="bg-white dark:bg-gray-900">
       <UTable :data="filteredInvoices" :columns="columns" class="w-full">
-        <template #actions="{ row }">
+        <template #status-data="{ row }">
+          <UBadge :color="getStatusColor(row.status)">{{ getStatusLabel(row.status) }}</UBadge>
+        </template>
+        <template #actions-data="{ row }">
           <div class="flex items-center gap-2">
             <UButton
-              v-if="(row as any).status === 'pending'"
+              v-if="row.status === 'pending' || row.status === 'overdue'"
               variant="ghost"
               color="success"
               size="sm"
               icon="i-lucide-check"
-              @click="markAsPaid(row as any)"
+              @click="markAsPaid(row)"
             />
             <UButton
               variant="ghost"
               size="sm"
               icon="i-lucide-pencil"
-              @click="openModal(row as any)"
+              @click="openModal(row)"
             />
             <UButton
               variant="ghost"
               color="error"
               size="sm"
               icon="i-lucide-trash-2"
-              @click="confirmDelete(row as any)"
+              @click="confirmDelete(row)"
             />
           </div>
         </template>
@@ -60,64 +63,56 @@
         <div class="p-6 max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">{{ editingInvoice ? 'Editar Fatura' : 'Nova Fatura' }}</h3>
           <UForm :state="formState" :schema="schema" @submit="handleSubmit" class="space-y-4">
-        <UFormField label="Cliente" name="clientId">
-          <USelect
-            v-model="formState.clientId"
-            :items="clientOptions"
-            placeholder="Selecione o cliente"
-            @change="onClientChange"
-          />
-        </UFormField>
+            
+            <UFormField label="Anunciante (Cliente)" name="clientId">
+              <USelect
+                v-model="formState.clientId"
+                :items="clientOptions"
+                placeholder="Selecione o anunciante"
+              />
+            </UFormField>
 
-        <UFormField label="Estabelecimento" name="establishmentId">
-          <USelect
-            v-model="formState.establishmentId"
-            :items="establishmentOptions"
-            placeholder="Selecione o estabelecimento"
-            :disabled="!formState.clientId"
-          />
-        </UFormField>
+            <div class="grid grid-cols-2 gap-4">
+              <UFormField label="Valor (R$)" name="amount">
+                <UInput
+                  v-model.number="formState.amount"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+              </UFormField>
 
-        <UFormField label="Valor (R$)" name="amount">
-          <UInput
-            v-model.number="formState.amount"
-            type="number"
-            step="0.01"
-            placeholder="0.00"
-          />
-        </UFormField>
+              <UFormField label="Vencimento" name="dueDate">
+                <UInput
+                  v-model="formState.dueDate"
+                  type="date"
+                />
+              </UFormField>
+            </div>
 
-        <UFormField label="Data de Vencimento" name="dueDate">
-          <UInput
-            v-model="formState.dueDate"
-            type="date"
-          />
-        </UFormField>
+            <div class="grid grid-cols-2 gap-4">
+              <UFormField label="Status" name="status">
+                <USelect v-model="formState.status" :items="statusOptions.filter(o => o.value !== 'all')" />
+              </UFormField>
+              
+              <UFormField label="Forma de Pagamento" name="paymentMethod">
+                <USelect v-model="formState.paymentMethod" :items="paymentMethods" placeholder="Ex: Pix" />
+              </UFormField>
+            </div>
 
-        <UFormField label="Status" name="status">
-          <USelect
-            v-model="formState.status"
-            :items="statusOptions"
-          />
-        </UFormField>
+            <UFormField label="Observações Financeiras" name="notes">
+              <UTextarea
+                v-model="formState.notes"
+                placeholder="Histórico ou detalhes de negociação..."
+                :rows="2"
+              />
+            </UFormField>
 
-        <UFormField label="Observações" name="notes">
-          <UTextarea
-            v-model="formState.notes"
-            placeholder="Observações adicionais..."
-            :rows="2"
-          />
-        </UFormField>
-
-        <div class="flex justify-end gap-3 pt-4">
-          <UButton variant="soft" @click="isModalOpen = false">
-            Cancelar
-          </UButton>
-          <UButton type="submit" color="primary" :loading="isSubmitting">
-            Salvar
-          </UButton>
-        </div>
-      </UForm>
+            <div class="flex justify-end gap-3 pt-4">
+              <UButton variant="soft" @click="isModalOpen = false">Cancelar</UButton>
+              <UButton type="submit" color="primary" :loading="isSubmitting">Salvar</UButton>
+            </div>
+          </UForm>
         </div>
       </template>
     </UModal>
@@ -127,8 +122,8 @@
         <div class="p-6">
           <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
           <p class="text-gray-600 dark:text-gray-300">
-        Tem certeza que deseja excluir esta fatura?
-      </p>
+            Tem certeza que deseja excluir esta fatura? O registro financeiro será perdido.
+          </p>
           <div class="flex justify-end gap-3 mt-6">
             <UButton variant="soft" @click="isDeleteOpen = false">Cancelar</UButton>
             <UButton color="error" :loading="isDeleting" @click="handleDelete">Excluir</UButton>
@@ -141,27 +136,24 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
-import { resolveComponent } from 'vue'
 
-definePageMeta({
-  middleware: 'auth',
-})
+definePageMeta({ middleware: 'auth' })
 
 const toast = useToast()
 
 const schema = z.object({
   clientId: z.string().min(1, 'Cliente é obrigatório'),
-  establishmentId: z.string().optional(),
-  amount: z.number().min(0.01, 'Valor deve ser maior que zero'),
-  dueDate: z.string().min(1, 'Data de vencimento é obrigatória'),
-  status: z.enum(['pending', 'paid', 'overdue', 'cancelled', 'barter']).default('pending'),
+  amount: z.number().min(0.01, 'Valor deve ser superior a zero'),
+  dueDate: z.string().min(1, 'Data de vencimento obrigatória'),
+  status: z.string().default('pending'),
+  paymentMethod: z.string().optional(),
   notes: z.string().optional(),
 })
 
 type FormState = z.infer<typeof schema>
 
 const search = ref('')
-const filterStatus = ref('')
+const filterStatus = ref('all')
 const isModalOpen = ref(false)
 const isDeleteOpen = ref(false)
 const isSubmitting = ref(false)
@@ -171,24 +163,31 @@ const invoiceToDelete = ref<any>(null)
 
 const formState = reactive<FormState>({
   clientId: '',
-  establishmentId: '',
   amount: 0,
   dueDate: '',
   status: 'pending',
+  paymentMethod: '',
   notes: '',
 })
 
 const { data: invoices, refresh: refreshInvoices } = await useFetch('/api/invoices')
 const { data: clients } = await useFetch('/api/clients')
-const { data: establishments } = await useFetch('/api/establishments')
 
 const statusOptions = [
   { label: 'Todos', value: 'all' },
   { label: 'Pendente', value: 'pending' },
-  { label: 'Paga', value: 'paid' },
-  { label: 'Vencida', value: 'overdue' },
-  { label: 'Cancelada', value: 'cancelled' },
-  { label: 'Barter', value: 'barter' },
+  { label: 'Pago', value: 'paid' },
+  { label: 'Atrasado', value: 'overdue' },
+  { label: 'Cancelado', value: 'cancelled' },
+  { label: 'Permuta', value: 'barter' },
+]
+
+const paymentMethods = [
+  { label: 'Pix', value: 'Pix' },
+  { label: 'Boleto', value: 'Boleto' },
+  { label: 'Cartão de Crédito', value: 'Cartão' },
+  { label: 'Dinheiro', value: 'Dinheiro' },
+  { label: 'Permuta', value: 'Permuta' },
 ]
 
 const clientOptions = computed(() => {
@@ -199,81 +198,65 @@ const clientOptions = computed(() => {
   }))
 })
 
-const establishmentOptions = computed(() => {
-  if (!establishments.value || !formState.clientId) return []
-  return establishments.value
-    .filter((e: any) => e.client_id === formState.clientId)
-    .map((e: any) => ({
-      label: e.name,
-      value: e.id,
-    }))
-})
+const getStatusColor = (status: string) => {
+  const colors: Record<string, string> = {
+    pending: 'warning',
+    paid: 'success',
+    overdue: 'error',
+    cancelled: 'neutral',
+    barter: 'info',
+  }
+  return colors[status] || 'neutral'
+}
+
+const getStatusLabel = (status: string) => {
+  return statusOptions.find(o => o.value === status)?.label || status
+}
 
 const columns = [
-  { accessorKey: 'clientName', header: 'Cliente' },
-  { accessorKey: 'establishmentName', header: 'Estabelecimento', cell: (row: any) => row.establishmentName || '-' },
-  { accessorKey: 'amount', header: 'Valor', cell: (row: any) => `R$ ${(row.amount || 0).toFixed(2)}` },
+  { accessorKey: 'clientName', header: 'Anunciante' },
+  { accessorKey: 'amount', header: 'Valor (R$)', cell: (row: any) => `R$ ${(row.amount || 0).toFixed(2)}` },
   { accessorKey: 'due_date', header: 'Vencimento', cell: (row: any) => formatDate(row.due_date) },
-  { accessorKey: 'status', header: 'Status', cell: (row: any) => {
-    const colors: Record<string, any> = {
-      pending: 'warning',
-      paid: 'success',
-      overdue: 'error',
-      cancelled: 'neutral',
-      barter: 'info',
-    }
-    const labels: Record<string, string> = {
-      pending: 'Pendente',
-      paid: 'Paga',
-      overdue: 'Vencida',
-      cancelled: 'Cancelada',
-      barter: 'Barter',
-    }
-    const BadgeComponent = resolveComponent('UBadge') as any
-    return h(BadgeComponent, { color: colors[row.status] || 'neutral' }, () => labels[row.status] || row.status)
-  }},
+  { accessorKey: 'payment_method', header: 'Meio Pgto', cell: (row: any) => row.payment_method || '-' },
+  { accessorKey: 'status', header: 'Status' },
 ]
 
 const filteredInvoices = computed(() => {
   if (!invoices.value) return []
   let result = invoices.value
   
-  if (filterStatus.value && filterStatus.value !== 'all') {
+  if (filterStatus.value !== 'all') {
     result = result.filter((i: any) => i.status === filterStatus.value)
   }
   
-  if (!search.value) return result
-  const s = search.value.toLowerCase()
-  return result.filter((i: any) =>
-    i.clientName?.toLowerCase().includes(s) ||
-    i.establishmentName?.toLowerCase().includes(s)
-  )
+  if (search.value) {
+    const s = search.value.toLowerCase()
+    result = result.filter((i: any) => i.clientName?.toLowerCase().includes(s))
+  }
+  return result
 })
 
 const formatDate = (date: string) => {
-  return new Intl.DateTimeFormat('pt-BR').format(new Date(date))
-}
-
-const onClientChange = () => {
-  formState.establishmentId = ''
+  if (!date) return ''
+  return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(date))
 }
 
 const openModal = (invoice?: any) => {
   if (invoice) {
     editingInvoice.value = invoice
     formState.clientId = invoice.client_id
-    formState.establishmentId = invoice.establishment_id || ''
     formState.amount = invoice.amount
     formState.dueDate = invoice.due_date
     formState.status = invoice.status
+    formState.paymentMethod = invoice.payment_method || ''
     formState.notes = invoice.notes || ''
   } else {
     editingInvoice.value = null
     formState.clientId = ''
-    formState.establishmentId = ''
     formState.amount = 0
     formState.dueDate = new Date().toISOString().split('T')[0]
     formState.status = 'pending'
+    formState.paymentMethod = ''
     formState.notes = ''
   }
   isModalOpen.value = true
@@ -286,13 +269,11 @@ const confirmDelete = (invoice: any) => {
 
 const markAsPaid = async (invoice: any) => {
   try {
-    await $fetch(`/api/invoices/${invoice.id}/pay`, {
-      method: 'POST',
-    })
-    toast.add({ title: 'Fatura marcada como paga!', color: 'success' })
+    await $fetch(`/api/invoices/${invoice.id}/pay`, { method: 'POST' })
+    toast.add({ title: 'Fatura liquidada!', color: 'success' })
     refreshInvoices()
   } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao marcar', color: 'error' })
+    toast.add({ title: e.data?.message || 'Erro ao processar', color: 'error' })
   }
 }
 
@@ -310,7 +291,7 @@ const handleSubmit = async () => {
         method: 'POST',
         body: formState,
       })
-      toast.add({ title: 'Fatura criada!', color: 'success' })
+      toast.add({ title: 'Fatura registrada!', color: 'success' })
     }
     isModalOpen.value = false
     refreshInvoices()
@@ -324,14 +305,12 @@ const handleSubmit = async () => {
 const handleDelete = async () => {
   isDeleting.value = true
   try {
-    await $fetch(`/api/invoices/${invoiceToDelete.value.id}`, {
-      method: 'DELETE',
-    })
+    await $fetch(`/api/invoices/${invoiceToDelete.value.id}`, { method: 'DELETE' })
     toast.add({ title: 'Fatura excluída!', color: 'success' })
     isDeleteOpen.value = false
     refreshInvoices()
   } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao excluir', color: 'error' })
+    toast.add({ title: e.data?.message || 'Erro', color: 'error' })
   } finally {
     isDeleting.value = false
   }

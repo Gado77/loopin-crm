@@ -25,8 +25,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { data: establishments } = await db
-    .from('establishments')
+  const { data: campaigns } = await db
+    .from('campaigns')
     .select('*')
     .eq('client_id', id)
     .order('created_at', { ascending: false })
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...client,
-    establishments: establishments || [],
+    campaigns: campaigns || [],
     invoices: invoices || [],
   }
 })

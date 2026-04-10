@@ -2,7 +2,6 @@ import { useDb } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
-  const body = await readBody(event)
 
   if (!id) {
     throw createError({
@@ -13,15 +12,8 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
   const { error } = await db
-    .from('invoices')
-    .update({
-      client_id: body.clientId,
-      amount: body.amount,
-      due_date: body.dueDate,
-      status: body.status || 'pending',
-      payment_method: body.paymentMethod || null,
-      notes: body.notes || null,
-    })
+    .from('campaigns')
+    .delete()
     .eq('id', id)
 
   if (error) {
@@ -31,5 +23,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return { id, ...body }
+  return { success: true }
 })

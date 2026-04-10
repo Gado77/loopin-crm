@@ -21,6 +21,14 @@ export default defineEventHandler(async (event) => {
       document: body.document || null,
       address: body.address || null,
       grace_days: body.graceDays || 30,
+      segment: body.segment || null,
+      lead_source: body.leadSource || null,
+      plan_type: body.planType || null,
+      monthly_fee: body.monthlyFee || 0,
+      start_date: body.startDate || null,
+      renewal_date: body.renewalDate || null,
+      status: body.status || 'active',
+      notes: body.notes || null,
     })
     .select()
     .single()

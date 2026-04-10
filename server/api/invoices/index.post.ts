@@ -16,10 +16,10 @@ export default defineEventHandler(async (event) => {
     .insert({
       id: generateId(),
       client_id: body.clientId,
-      establishment_id: body.establishmentId || null,
       amount: body.amount,
       due_date: body.dueDate,
       status: body.status || 'pending',
+      payment_method: body.paymentMethod || null,
       notes: body.notes || null,
     })
     .select()

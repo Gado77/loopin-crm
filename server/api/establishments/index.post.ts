@@ -3,10 +3,10 @@ import { useDb, generateId } from '../../utils/db'
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
-  if (!body.clientId || !body.name) {
+  if (!body.name) {
     throw createError({
       statusCode: 400,
-      message: 'Cliente e nome são obrigatórios',
+      message: 'Nome do ponto é obrigatório',
     })
   }
 
@@ -15,10 +15,14 @@ export default defineEventHandler(async (event) => {
     .from('establishments')
     .insert({
       id: generateId(),
-      client_id: body.clientId,
       name: body.name,
+      responsible_name: body.responsibleName || null,
       address: body.address || null,
-      monthly_fee: body.monthlyFee || 0,
+      screens_count: body.screensCount || 1,
+      estimated_flow: body.estimatedFlow || null,
+      audience_type: body.audienceType || null,
+      location_cost: body.locationCost || 0,
+      status: body.status || 'active',
     })
     .select()
     .single()

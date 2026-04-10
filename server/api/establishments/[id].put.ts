@@ -15,10 +15,14 @@ export default defineEventHandler(async (event) => {
   const { error } = await db
     .from('establishments')
     .update({
-      client_id: body.clientId,
       name: body.name,
+      responsible_name: body.responsibleName || null,
       address: body.address || null,
-      monthly_fee: body.monthlyFee || 0,
+      screens_count: body.screensCount || 1,
+      estimated_flow: body.estimatedFlow || null,
+      audience_type: body.audienceType || null,
+      location_cost: body.locationCost || 0,
+      status: body.status || 'active',
     })
     .eq('id', id)
 
