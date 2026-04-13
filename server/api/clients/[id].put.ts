@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
       phone: body.phone || null,
       document: body.document || null,
       address: body.address || null,
+      contact_name: body.contactName || null,
       grace_days: body.graceDays || 30,
       segment: body.segment || null,
       lead_source: body.leadSource || null,

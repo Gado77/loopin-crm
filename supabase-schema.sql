@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS clients (
   status TEXT DEFAULT 'active', -- active, paused, cancelled
   notes TEXT,
   grace_days INTEGER DEFAULT 30,
+  asaas_customer_id TEXT, -- ID do cliente no Asaas
+  contact_name TEXT, -- nome do contato responsável
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -90,6 +92,8 @@ CREATE TABLE IF NOT EXISTS invoices (
   paid_at TIMESTAMPTZ,
   payment_method TEXT, -- Pix, Boleto, Dinheiro, Cartão
   notes TEXT,
+  asaas_payment_id TEXT, -- ID da cobrança no Asaas
+  asaas_billing_type TEXT, -- PIX, BOLETO, CREDIT_CARD
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

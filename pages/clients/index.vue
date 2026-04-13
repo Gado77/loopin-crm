@@ -5,9 +5,14 @@
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Clientes (Anunciantes)</h1>
         <p class="text-gray-500 dark:text-gray-400">Gerencie marcas e anunciantes da sua rede</p>
       </div>
-      <UButton color="primary" icon="i-lucide-plus" @click="openModal()">
-        Novo Anunciante
-      </UButton>
+      <div class="flex gap-2">
+        <UButton variant="soft" icon="i-lucide-refresh-ccw" :loading="isSyncing" @click="syncFromLoopin()">
+          Sincronizar
+        </UButton>
+        <UButton color="primary" icon="i-lucide-plus" @click="openModal()">
+          Novo Anunciante
+        </UButton>
+      </div>
     </div>
 
     <UCard class="bg-white dark:bg-gray-900">
@@ -85,6 +90,10 @@
                   <UInput v-model="formState.document" placeholder="00.000.000/0001-00" />
                 </UFormField>
                 
+                <UFormField label="Nome do Contato" name="contactName">
+                  <UInput v-model="formState.contactName" placeholder="Pessoa responsável pelo contato" />
+                </UFormField>
+
                 <UFormField label="Endereço" name="address">
                   <UInput v-model="formState.address" placeholder="Endereço completo" />
                 </UFormField>
@@ -158,8 +167,20 @@
                 <p class="font-medium text-lg">{{ selectedClient.name }}</p>
               </div>
               <div>
+                <p class="text-sm text-gray-500">Contato</p>
+                <p class="font-medium">{{ selectedClient.contact_name || '-' }}</p>
+              </div>
+              <div>
                 <p class="text-sm text-gray-500">Segmento</p>
                 <p class="font-medium">{{ selectedClient.segment || '-' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Email</p>
+                <p class="font-medium">{{ selectedClient.email || '-' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Telefone / Whats</p>
+                <p class="font-medium">{{ selectedClient.phone || '-' }}</p>
               </div>
               <div>
                 <p class="text-sm text-gray-500">Plano Atual</p>
@@ -168,10 +189,6 @@
               <div>
                 <p class="text-sm text-gray-500">Mensalidade</p>
                 <p class="font-medium text-green-600">R$ {{ (selectedClient.monthly_fee || 0).toFixed(2) }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">Telefone / Whats</p>
-                <p class="font-medium">{{ selectedClient.phone || '-' }}</p>
               </div>
               <div>
                 <p class="text-sm text-gray-500">Renovação</p>
@@ -260,6 +277,7 @@ const schema = z.object({
   phone: z.string().optional(),
   document: z.string().optional(),
   address: z.string().optional(),
+  contactName: z.string().optional(),
   segment: z.string().optional(),
   leadSource: z.string().optional(),
   planType: z.string().optional(),
@@ -279,6 +297,7 @@ const isModalOpen = ref(false)
 const isDetailOpen = ref(false)
 const isDeleteOpen = ref(false)
 const isSubmitting = ref(false)
+const isSyncing = ref(false)
 const isDeleting = ref(false)
 const editingClient = ref<any>(null)
 const selectedClient = ref<any>(null)
@@ -290,6 +309,7 @@ const formState = reactive<FormState>({
   phone: '',
   document: '',
   address: '',
+  contactName: '',
   segment: '',
   leadSource: '',
   planType: '',
@@ -341,10 +361,10 @@ const getInvoiceStatusLabel = (status: string) => {
 
 const columns = [
   { accessorKey: 'name', header: 'Anunciante' },
+  { accessorKey: 'contact_name', header: 'Contato', cell: ({ row }: any) => row.original.contact_name || '-' },
   { accessorKey: 'segment', header: 'Segmento', cell: ({ row }: any) => row.original.segment || '-' },
-  { accessorKey: 'plan_type', header: 'Plano', cell: ({ row }: any) => row.original.plan_type || '-' },
-  { accessorKey: 'monthly_fee', header: 'Mensalidade', cell: ({ row }: any) => `R$ ${(row.original.monthly_fee || 0).toFixed(2)}` },
-  { accessorKey: 'status', header: 'Status' },
+  { accessorKey: 'email', header: 'Email', cell: ({ row }: any) => row.original.email || '-' },
+  { accessorKey: 'phone', header: 'Telefone', cell: ({ row }: any) => row.original.phone || '-' },
   { accessorKey: 'actions' },
 ]
 
@@ -377,6 +397,7 @@ const openModal = (client?: any) => {
     formState.phone = client.phone || ''
     formState.document = client.document || ''
     formState.address = client.address || ''
+    formState.contactName = client.contact_name || ''
     formState.segment = client.segment || ''
     formState.leadSource = client.lead_source || ''
     formState.planType = client.plan_type || ''
@@ -393,6 +414,7 @@ const openModal = (client?: any) => {
     formState.phone = ''
     formState.document = ''
     formState.address = ''
+    formState.contactName = ''
     formState.segment = ''
     formState.leadSource = ''
     formState.planType = ''
@@ -417,6 +439,25 @@ const confirmDelete = (client: any) => {
   isDeleteOpen.value = true
 }
 
+const syncFromLoopin = async () => {
+  isSyncing.value = true
+  try {
+    await $fetch('https://sxsmirhqbslmvyesikgg.supabase.co/functions/v1/sync-advertisers', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4c21pcmhxYnNsbXZ5ZXNpa2dnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mzg2MzA5NiwiZXhwIjoyMDc5NDM5MDk2fQ.nF46cCyaQ-gGeZRExtXVk7YRwBLkxKg8uSmQsxLi1_Q',
+        'Content-Type': 'application/json'
+      }
+    })
+    toast.add({ title: 'Sincronizado!', color: 'success' })
+    refreshClients()
+  } catch (e: any) {
+    toast.add({ title: 'Erro ao sincronizar', color: 'error' })
+  } finally {
+    isSyncing.value = false
+  }
+}
+
 const handleSubmit = async () => {
   isSubmitting.value = true
   try {
@@ -436,7 +477,7 @@ const handleSubmit = async () => {
     isModalOpen.value = false
     refreshClients()
   } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao salvar', color: 'error' })
+    toast.add({ title: e.data?.message || 'Erro ao sincronizar', color: 'error' })
   } finally {
     isSubmitting.value = false
   }
