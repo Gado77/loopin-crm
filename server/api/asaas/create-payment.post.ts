@@ -1,4 +1,4 @@
-import { criarCobrancaAsaas, obterQrCodePix } from '../../utils/asaas'
+import { criarCobrancaAsaas, obterQrCodePix, criarClienteAsaas } from '../../utils/asaas'
 import { useDb } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
@@ -41,11 +41,35 @@ export default defineEventHandler(async (event) => {
 
   let customerId = (invoice.clients as any)?.asaas_customer_id
 
+  // Se não tem ID Asaas, criar cliente automaticamente
   if (!customerId) {
-    throw createError({
-      statusCode: 400,
-      message: 'Cliente não possui ID Asaas. Crie o cliente primeiro.'
-    })
+    console.log('[Create Payment] Cliente sem Asaas ID, criando...')
+    const client = invoice.clients as any
+    
+    try {
+      const asaasCustomer = await criarClienteAsaas({
+        name: client.name || 'Cliente',
+        email: client.email || undefined,
+        phone: client.phone || undefined,
+        cpfCnpj: client.document || undefined,
+      })
+      
+      customerId = asaasCustomer.id
+      
+      // Atualizar cliente no banco com o ID do Asaas
+      await db
+        .from('clients')
+        .update({ asaas_customer_id: customerId })
+        .eq('id', client.id)
+      
+      console.log(`[Create Payment] Cliente criado no Asaas: ${customerId}`)
+    } catch (err: any) {
+      console.error('[Create Payment] Erro ao criar cliente:', err)
+      throw createError({
+        statusCode: 400,
+        message: 'Erro ao criar cliente no Asaas: ' + (err.message || 'Verifique os dados do cliente')
+      })
+    }
   }
 
   const asaasPayment = await criarCobrancaAsaas({
