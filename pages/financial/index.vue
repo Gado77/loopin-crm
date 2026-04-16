@@ -2,29 +2,15 @@
   <div>
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Financeiro</h1>
-        <p class="text-gray-500 dark:text-gray-400">Controle de despesas e fluxo de caixa</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Despesas</h1>
+        <p class="text-gray-500 dark:text-gray-400">Controle de gastos do negócio</p>
       </div>
       <UButton color="primary" icon="i-lucide-plus" @click="openModal()">
-        Nova Transação
+        Nova Despesa
       </UButton>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <UCard class="bg-white dark:bg-gray-900">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Entradas do Mês</p>
-            <p class="text-2xl font-bold text-green-600">
-              {{ formatCurrency(stats?.monthIncome || 0) }}
-            </p>
-          </div>
-          <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-            <UIcon name="i-lucide-trending-up" class="w-6 h-6 text-green-600" />
-          </div>
-        </div>
-      </UCard>
-
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <UCard class="bg-white dark:bg-gray-900">
         <div class="flex items-center justify-between">
           <div>
@@ -42,109 +28,98 @@
       <UCard class="bg-white dark:bg-gray-900">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Saldo do Mês</p>
-            <p class="text-2xl font-bold" :class="(stats?.monthBalance || 0) >= 0 ? 'text-green-600' : 'text-red-600'">
-              {{ formatCurrency(stats?.monthBalance || 0) }}
+            <p class="text-sm text-gray-500 dark:text-gray-400">Total de Despesas</p>
+            <p class="text-2xl font-bold text-orange-600">
+              {{ formatCurrency(stats?.totalExpenses || 0) }}
             </p>
           </div>
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-            <UIcon name="i-lucide-wallet" class="w-6 h-6 text-indigo-600" />
+          <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+            <UIcon name="i-lucide-wallet" class="w-6 h-6 text-orange-600" />
           </div>
         </div>
       </UCard>
     </div>
 
-    <UTabs :items="tabs" class="mb-6">
-      <template #transactions>
-        <UCard class="bg-white dark:bg-gray-900">
-          <UTable :data="transactions || []" :columns="columns" class="w-full">
-            <template #type-cell="{ row }">
-              <UBadge :color="row.original.type === 'income' ? 'success' : 'error'">
-                {{ row.original.type === 'income' ? 'Entrada' : 'Despesa' }}
-              </UBadge>
-            </template>
-            <template #categoryName-cell="{ row }">
-              {{ row.original.categoryName || '-' }}
-            </template>
-            <template #actions-cell="{ row }">
-              <div class="flex items-center gap-2">
-                <UButton
-                  variant="ghost"
-                  size="sm"
-                  icon="i-lucide-pencil"
-                  @click="openModal(row.original)"
-                />
-                <UButton
-                  variant="ghost"
-                  color="error"
-                  size="sm"
-                  icon="i-lucide-trash-2"
-                  @click="confirmDelete(row.original)"
-                />
-              </div>
-            </template>
-          </UTable>
-        </UCard>
-      </template>
+    <div class="mb-6">
+      <UCard class="bg-white dark:bg-gray-900">
+        <UTable :data="transactions || []" :columns="columns" class="w-full">
+          <template #categoryName-cell="{ row }">
+            {{ row.original.categoryName || '-' }}
+          </template>
+          <template #actions-cell="{ row }">
+            <div class="flex items-center gap-2">
+              <UButton
+                variant="ghost"
+                size="sm"
+                icon="i-lucide-pencil"
+                @click="openModal(row.original)"
+              />
+              <UButton
+                variant="ghost"
+                color="error"
+                size="sm"
+                icon="i-lucide-trash-2"
+                @click="confirmDelete(row.original)"
+              />
+            </div>
+          </template>
+        </UTable>
+      </UCard>
+    </div>
 
-      <template #cashflow>
-        <UCard class="bg-white dark:bg-gray-900">
-          <div class="h-80">
-            <canvas ref="cashFlowChart"></canvas>
+    <div class="mb-6">
+      <UCard class="bg-white dark:bg-gray-900">
+        <div class="p-4">
+          <h3 class="text-lg font-semibold mb-4">Despesas por Mês</h3>
+          <div class="h-64">
+            <canvas ref="expensesChart"></canvas>
           </div>
-        </UCard>
-      </template>
-    </UTabs>
+        </div>
+      </UCard>
+    </div>
 
     <UModal v-model:open="isModalOpen">
       <template #content>
         <div class="p-6 max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">{{ editingTransaction ? 'Editar Transação' : 'Nova Transação' }}</h3>
+          <h3 class="text-lg font-semibold mb-4">{{ editingTransaction ? 'Editar Despesa' : 'Nova Despesa' }}</h3>
           <UForm :state="formState" :schema="schema" @submit="handleSubmit" class="space-y-4">
-        <UFormField label="Tipo" name="type">
-          <USelect
-            v-model="formState.type"
-            :items="typeOptions"
-          />
-        </UFormField>
+            <UFormField label="Categoria" name="categoryId">
+              <USelect
+                v-model="formState.categoryId"
+                :items="categoryOptions"
+                placeholder="Selecione a categoria"
+              />
+            </UFormField>
 
-        <UFormField label="Categoria" name="categoryId" v-if="formState.type === 'expense'">
-          <USelect
-            v-model="formState.categoryId"
-            :items="categoryOptions"
-            placeholder="Selecione a categoria"
-          />
-        </UFormField>
+            <UFormField label="Descrição" name="description">
+              <UInput v-model="formState.description" placeholder="Descrição da despesa" />
+            </UFormField>
 
-        <UFormField label="Descrição" name="description">
-          <UInput v-model="formState.description" placeholder="Descrição da transação" />
-        </UFormField>
+            <UFormField label="Valor (R$)" name="amount">
+              <UInput
+                v-model.number="formState.amount"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+              />
+            </UFormField>
 
-        <UFormField label="Valor (R$)" name="amount">
-          <UInput
-            v-model.number="formState.amount"
-            type="number"
-            step="0.01"
-            placeholder="0.00"
-          />
-        </UFormField>
+            <UFormField label="Data" name="date">
+              <UInput
+                v-model="formState.date"
+                type="date"
+              />
+            </UFormField>
 
-        <UFormField label="Data" name="date">
-          <UInput
-            v-model="formState.date"
-            type="date"
-          />
-        </UFormField>
-
-        <div class="flex justify-end gap-3 pt-4">
-          <UButton variant="soft" @click="isModalOpen = false">
-            Cancelar
-          </UButton>
-          <UButton type="submit" color="primary" :loading="isSubmitting">
-            Salvar
-          </UButton>
-        </div>
-      </UForm>
+            <div class="flex justify-end gap-3 pt-4">
+              <UButton variant="soft" @click="isModalOpen = false">
+                Cancelar
+              </UButton>
+              <UButton type="submit" color="primary" :loading="isSubmitting">
+                Salvar
+              </UButton>
+            </div>
+          </UForm>
         </div>
       </template>
     </UModal>
@@ -154,8 +129,8 @@
         <div class="p-6">
           <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
           <p class="text-gray-600 dark:text-gray-300">
-        Tem certeza que deseja excluir esta transação?
-      </p>
+            Tem certeza que deseja excluir esta despesa?
+          </p>
           <div class="flex justify-end gap-3 mt-6">
             <UButton variant="soft" @click="isDeleteOpen = false">Cancelar</UButton>
             <UButton color="error" :loading="isDeleting" @click="handleDelete">Excluir</UButton>
@@ -177,16 +152,10 @@ definePageMeta({
 })
 
 const toast = useToast()
-const cashFlowChart = ref<HTMLCanvasElement>()
-
-const tabs = [
-  { label: 'Transações', slot: 'transactions' },
-  { label: 'Fluxo de Caixa', slot: 'cashflow' },
-]
+const expensesChart = ref<HTMLCanvasElement>()
 
 const schema = z.object({
-  type: z.enum(['income', 'expense']),
-  categoryId: z.string().optional(),
+  categoryId: z.string().min(1, 'Categoria é obrigatória'),
   description: z.string().min(1, 'Descrição é obrigatória'),
   amount: z.number().min(0.01, 'Valor deve ser maior que zero'),
   date: z.string().min(1, 'Data é obrigatória'),
@@ -194,7 +163,6 @@ const schema = z.object({
 
 type FormState = z.infer<typeof schema>
 
-const search = ref('')
 const isModalOpen = ref(false)
 const isDeleteOpen = ref(false)
 const isSubmitting = ref(false)
@@ -203,7 +171,6 @@ const editingTransaction = ref<any>(null)
 const transactionToDelete = ref<any>(null)
 
 const formState = reactive<FormState>({
-  type: 'expense',
   categoryId: '',
   description: '',
   amount: 0,
@@ -215,11 +182,6 @@ const { data: categories } = await useFetch('/api/financial/categories')
 const { data: stats } = await useFetch('/api/financial/stats')
 const { data: cashFlow } = await useFetch('/api/financial/cashflow')
 
-const typeOptions = [
-  { label: 'Entrada', value: 'income' },
-  { label: 'Despesa', value: 'expense' },
-]
-
 const categoryOptions = computed(() => {
   if (!categories.value) return []
   return categories.value.map((c: any) => ({
@@ -230,14 +192,11 @@ const categoryOptions = computed(() => {
 
 const columns = [
   { accessorKey: 'date', header: 'Data', cell: ({ row }: any) => formatDate(row.original.date) },
-  { accessorKey: 'type', header: 'Tipo' },
-  { accessorKey: 'description', header: 'Descrição' },
   { accessorKey: 'categoryName', header: 'Categoria' },
-  { accessorKey: 'amount', header: 'Valor', cell: ({ row }: any) => {
-    const color = row.original.type === 'income' ? 'text-green-600' : 'text-red-600'
-    const prefix = row.original.type === 'income' ? '+' : '-'
-    return h('span', { class: color }, `${prefix} R$ ${(row.original.amount || 0).toFixed(2)}`)
-  }},
+  { accessorKey: 'description', header: 'Descrição' },
+  { accessorKey: 'amount', header: 'Valor', cell: ({ row }: any) => 
+    h('span', { class: 'text-red-600' }, `R$ ${(row.original.amount || 0).toFixed(2)}`)
+  },
   { accessorKey: 'actions' },
 ]
 
@@ -255,14 +214,12 @@ const formatDate = (date: string) => {
 const openModal = (transaction?: any) => {
   if (transaction) {
     editingTransaction.value = transaction
-    formState.type = transaction.type
     formState.categoryId = transaction.category_id || ''
     formState.description = transaction.description
     formState.amount = transaction.amount
     formState.date = transaction.date
   } else {
     editingTransaction.value = null
-    formState.type = 'expense'
     formState.categoryId = ''
     formState.description = ''
     formState.amount = 0
@@ -280,27 +237,17 @@ const handleSubmit = async () => {
   isSubmitting.value = true
   try {
     if (editingTransaction.value) {
-      const payload = { ...formState }
-      if (payload.type === 'income') {
-        payload.categoryId = undefined
-      }
-
       await $fetch(`/api/financial/${editingTransaction.value.id}`, {
         method: 'PUT',
-        body: payload,
+        body: formState,
       })
-      toast.add({ title: 'Transação atualizada!', color: 'success' })
+      toast.add({ title: 'Despesa atualizada!', color: 'success' })
     } else {
-      const payload = { ...formState }
-      if (payload.type === 'income') {
-        payload.categoryId = undefined
-      }
-      
       await $fetch('/api/financial', {
         method: 'POST',
-        body: payload,
+        body: formState,
       })
-      toast.add({ title: 'Transação criada!', color: 'success' })
+      toast.add({ title: 'Despesa criada!', color: 'success' })
     }
     isModalOpen.value = false
     refreshTransactions()
@@ -317,7 +264,7 @@ const handleDelete = async () => {
     await $fetch(`/api/financial/${transactionToDelete.value.id}`, {
       method: 'DELETE',
     })
-    toast.add({ title: 'Transação excluída!', color: 'success' })
+    toast.add({ title: 'Despesa excluída!', color: 'success' })
     isDeleteOpen.value = false
     refreshTransactions()
   } catch (e: any) {
@@ -328,25 +275,18 @@ const handleDelete = async () => {
 }
 
 onMounted(() => {
-  if (cashFlowChart.value && cashFlow.value) {
-    new Chart(cashFlowChart.value, {
-      type: 'line',
+  if (expensesChart.value && cashFlow.value) {
+    new Chart(expensesChart.value, {
+      type: 'bar',
       data: {
         labels: cashFlow.value.labels,
         datasets: [
           {
-            label: 'Entradas',
-            data: cashFlow.value.income,
-            borderColor: 'rgb(34, 197, 94)',
-            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-            fill: true,
-          },
-          {
             label: 'Despesas',
             data: cashFlow.value.expenses,
+            backgroundColor: 'rgba(239, 68, 68, 0.5)',
             borderColor: 'rgb(239, 68, 68)',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            fill: true,
+            borderWidth: 1,
           },
         ],
       },
@@ -354,7 +294,7 @@ onMounted(() => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'top' },
+          legend: { display: false },
         },
         scales: {
           y: {

@@ -136,9 +136,9 @@ const navigationItems = [
     icon: 'i-lucide-file-text',
   },
   {
-    label: 'Financeiro',
+    label: 'Despesas',
     to: '/financial',
-    icon: 'i-lucide-wallet',
+    icon: 'i-lucide-credit-card',
   },
 ]
 

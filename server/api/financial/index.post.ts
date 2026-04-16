@@ -3,10 +3,10 @@ import { useDb, generateId } from '../../utils/db'
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
-  if (!body.type || !body.description || !body.amount || !body.date) {
+  if (!body.categoryId || !body.description || !body.amount || !body.date) {
     throw createError({
       statusCode: 400,
-      message: 'Tipo, descrição, valor e data são obrigatórios',
+      message: 'Categoria, descrição, valor e data são obrigatórios',
     })
   }
 
@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
     .from('transactions')
     .insert({
       id: generateId(),
-      type: body.type,
-      category_id: body.categoryId || null,
+      type: 'expense',
+      category_id: body.categoryId,
       description: body.description,
       amount: body.amount,
       date: body.date,
