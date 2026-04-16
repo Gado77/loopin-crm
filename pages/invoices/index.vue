@@ -52,6 +52,14 @@
               <UButton variant="ghost" color="primary" size="sm" icon="i-lucide-credit-card" />
             </UDropdown>
             <UButton
+              v-if="row.original.status === 'pending' || row.original.status === 'overdue'"
+              variant="ghost"
+              color="success"
+              size="sm"
+              icon="i-lucide-check"
+              @click="markAsPaid(row.original)"
+            />
+            <UButton
               v-if="row.original.asaas_payment_id"
               variant="ghost"
               color="info"
