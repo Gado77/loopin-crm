@@ -270,8 +270,14 @@ const formState = reactive<FormState>({
   notes: '',
 })
 
-const { data: invoices, refresh: refreshInvoices } = await useFetch('/api/invoices')
-const { data: clients } = await useFetch('/api/clients')
+const { data: invoices, refresh: refreshInvoices } = await useFetch('/api/invoices', {
+  server: false,
+  default: () => []
+})
+const { data: clients } = await useFetch('/api/clients', {
+  server: false,
+  default: () => []
+})
 
 const statusOptions = [
   { label: 'Todos', value: 'all' },
