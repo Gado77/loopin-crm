@@ -1,5 +1,23 @@
-import { criarCobrancaAsaas, obterQrCodePix, criarClienteAsaas } from '../../utils/asaas'
+import { criarCobrancaAsaas, obterQrCodePix, criarClienteAsaas, buscarCobrancaAsaas } from '../../utils/asaas'
 import { useDb } from '../../utils/db'
+
+// Retorna a data de hoje no formato YYYY-MM-DD (timezone de Brasília)
+function todayBR(): string {
+  const now = new Date()
+  // UTC-3
+  now.setHours(now.getHours() - 3)
+  return now.toISOString().split('T')[0]
+}
+
+// Garante que a dueDate não fique no passado (Asaas rejeita com 400)
+function resolverDueDate(invoiceDueDate: string | null): string {
+  const today = todayBR()
+  if (!invoiceDueDate || invoiceDueDate < today) {
+    console.log(`[create-payment] dueDate ${invoiceDueDate} está no passado → usando hoje (${today})`)
+    return today
+  }
+  return invoiceDueDate
+}
 
 export default defineEventHandler(async (event) => {
   const db = useDb()
@@ -24,17 +42,23 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Fatura não encontrada' })
   }
 
-  // Se já tem cobrança no Asaas, retornar os dados existentes em vez de erro
+  // Validação de valor mínimo
+  const valor = Number(invoice.amount)
+  if (!valor || valor < 1) {
+    throw createError({
+      statusCode: 400,
+      message: `Valor da fatura (R$ ${valor.toFixed(2)}) é menor que o mínimo do Asaas (R$ 1,00)`
+    })
+  }
+
+  // Se já tem cobrança no Asaas, retornar os dados existentes em vez de criar outra
   if (invoice.asaas_payment_id) {
-    const { buscarCobrancaAsaas } = await import('../../utils/asaas')
     try {
       const existing = await buscarCobrancaAsaas(invoice.asaas_payment_id)
 
       let pixData = null
       if (invoice.asaas_billing_type === 'PIX') {
-        try {
-          pixData = await obterQrCodePix(invoice.asaas_payment_id)
-        } catch {}
+        try { pixData = await obterQrCodePix(invoice.asaas_payment_id) } catch {}
       }
 
       return {
@@ -52,7 +76,11 @@ export default defineEventHandler(async (event) => {
         }
       }
     } catch {
-      // Se não conseguiu buscar no Asaas, continua e permite recriar
+      // Cobrança não existe mais no Asaas → limpa o ID e recria
+      await db
+        .from('invoices')
+        .update({ asaas_payment_id: null, asaas_billing_type: null })
+        .eq('id', body.invoiceId)
     }
   }
 
@@ -62,12 +90,16 @@ export default defineEventHandler(async (event) => {
   if (!customerId) {
     const client = invoice.clients as any
 
+    // Limpar CPF/CNPJ: remover pontuação
+    const docRaw = (client.document || '').replace(/[^\d]/g, '')
+    const cpfCnpj = docRaw.length >= 11 ? docRaw : undefined
+
     try {
       const asaasCustomer = await criarClienteAsaas({
         name: client.name || 'Cliente',
         email: client.email || undefined,
         phone: client.phone || undefined,
-        cpfCnpj: client.document || undefined,
+        cpfCnpj,
         externalReference: client.id
       })
 
@@ -77,6 +109,8 @@ export default defineEventHandler(async (event) => {
         .from('clients')
         .update({ asaas_customer_id: customerId })
         .eq('id', client.id)
+
+      console.log(`[create-payment] Cliente criado no Asaas: ${customerId} — "${client.name}"`)
     } catch (err: any) {
       throw createError({
         statusCode: 400,
@@ -85,14 +119,29 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const asaasPayment = await criarCobrancaAsaas({
-    customer: customerId,
-    billingType: body.billingType,
-    value: Number(invoice.amount),
-    dueDate: invoice.due_date,
-    description: `Fatura Loopin CRM #${invoice.id.slice(0, 8)}`,
-    externalReference: invoice.id
-  })
+  // Ajustar data de vencimento para não ficar no passado
+  const dueDate = resolverDueDate(invoice.due_date)
+
+  console.log(`[create-payment] Criando cobrança: cliente=${customerId}, tipo=${body.billingType}, valor=${valor}, vencimento=${dueDate}`)
+
+  let asaasPayment
+  try {
+    asaasPayment = await criarCobrancaAsaas({
+      customer: customerId,
+      billingType: body.billingType,
+      value: valor,
+      dueDate,
+      description: `Fatura Loopin CRM #${invoice.id.slice(0, 8)}`,
+      externalReference: invoice.id
+    })
+  } catch (err: any) {
+    console.error('[create-payment] Erro Asaas:', err.message)
+    // Re-throw com a mensagem exata do Asaas para o frontend ver
+    throw createError({
+      statusCode: err.statusCode || 400,
+      message: err.message || 'Erro ao criar cobrança no Asaas'
+    })
+  }
 
   await db
     .from('invoices')
@@ -106,8 +155,12 @@ export default defineEventHandler(async (event) => {
   if (body.billingType === 'PIX') {
     try {
       pixData = await obterQrCodePix(asaasPayment.id)
-    } catch {}
+    } catch (err: any) {
+      console.error('[create-payment] Erro ao buscar QR Code Pix:', err.message)
+    }
   }
+
+  console.log(`[create-payment] Cobrança criada: ${asaasPayment.id}`)
 
   return {
     success: true,
