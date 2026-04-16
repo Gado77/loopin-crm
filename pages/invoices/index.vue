@@ -12,6 +12,12 @@
 
     <div class="flex flex-wrap gap-4 mb-6">
       <USelect
+        v-model="filterMonth"
+        :items="monthOptions"
+        placeholder="Período"
+        class="w-44"
+      />
+      <USelect
         v-model="filterStatus"
         :items="statusOptions"
         placeholder="Status"
@@ -244,6 +250,7 @@ type FormState = z.infer<typeof schema>
 const search = ref('')
 const filterStatus = ref('all')
 const filterType = ref('all')
+const filterMonth = ref(getCurrentMonthValue())
 const isModalOpen = ref(false)
 const isDeleteOpen = ref(false)
 const isCobrancaOpen = ref(false)
@@ -280,6 +287,35 @@ const typeOptions = [
   { label: 'De Contrato', value: 'contract' },
   { label: 'Avulsas', value: 'standalone' },
 ]
+
+const getCurrentMonthValue = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+const monthOptions = computed(() => {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth()
+  const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+  
+  const months = []
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(currentYear, currentMonth - i, 1)
+    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    const label = i === 0 ? `${monthNames[d.getMonth()]} ${d.getFullYear()} (Atual)` : `${monthNames[d.getMonth()]} ${d.getFullYear()}`
+    months.push({ label, value })
+  }
+  
+  return [
+    ...months,
+    { label: 'Próximo Mês', value: 'next' },
+    { label: 'Últimos 3 Meses', value: 'last3' },
+    { label: 'Este Ano', value: 'year' },
+    { label: 'Todas', value: 'all' },
+  ]
+})
 
 const paymentMethods = [
   { label: 'Pix', value: 'Pix' },
@@ -324,6 +360,31 @@ const columns = [
 const filteredInvoices = computed(() => {
   if (!invoices.value) return []
   let result = invoices.value
+  
+  if (filterMonth.value && filterMonth.value !== 'all') {
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth()
+    
+    if (filterMonth.value === 'next') {
+      const nextMonth = new Date(currentYear, currentMonth + 1, 1)
+      const nextMonthStr = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}`
+      result = result.filter((i: any) => i.due_date?.startsWith(nextMonthStr))
+    } else if (filterMonth.value === 'last3') {
+      const threeMonthsAgo = new Date(currentYear, currentMonth - 2, 1)
+      result = result.filter((i: any) => {
+        const dueDate = new Date(i.due_date)
+        return dueDate >= threeMonthsAgo
+      })
+    } else if (filterMonth.value === 'year') {
+      result = result.filter((i: any) => i.due_date?.startsWith(String(currentYear)))
+    } else if (filterMonth.value === 'current') {
+      const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`
+      result = result.filter((i: any) => i.due_date?.startsWith(currentMonthStr))
+    } else {
+      result = result.filter((i: any) => i.due_date?.startsWith(filterMonth.value))
+    }
+  }
   
   if (filterStatus.value !== 'all') {
     result = result.filter((i: any) => i.status === filterStatus.value)
