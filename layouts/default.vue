@@ -131,11 +131,6 @@ const navigationItems = [
     icon: 'i-lucide-building-2',
   },
   {
-    label: 'Campanhas',
-    to: '/campaigns',
-    icon: 'i-lucide-monitor-play',
-  },
-  {
     label: 'Faturas',
     to: '/invoices',
     icon: 'i-lucide-file-text',

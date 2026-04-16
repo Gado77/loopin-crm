@@ -197,24 +197,6 @@
             </div>
 
             <div>
-              <h3 class="font-semibold mb-3 flex items-center gap-2">
-                <UIcon name="i-lucide-monitor-play" class="w-5 h-5 text-indigo-500" />
-                Campanhas Ativas
-              </h3>
-              <div v-if="selectedClient.campaigns?.length" class="space-y-2">
-                <div
-                  v-for="camp in selectedClient.campaigns"
-                  :key="camp.id"
-                  class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
-                >
-                  <p class="font-medium">{{ camp.name }}</p>
-                  <div class="flex items-center justify-between mt-1">
-                    <p class="text-sm text-gray-500">{{ camp.ad_type || 'Mídia' }} · {{ camp.frequency || 'Livre' }}</p>
-                    <UBadge :color="camp.status === 'active' ? 'success' : 'neutral'">{{ camp.status }}</UBadge>
-                  </div>
-                </div>
-              </div>
-              <p v-else class="text-gray-500 text-sm">Este cliente não possui campanhas na rede.</p>
             </div>
 
             <div>

@@ -40,6 +40,25 @@
               icon="i-lucide-check"
               @click="markAsPaid(row.original)"
             />
+            <UDropdown
+              v-if="row.original.status === 'pending' || row.original.status === 'overdue'"
+              :items="[
+                [
+                  { label: 'Cobrar via Pix', icon: 'i-lucide-qr-code', onClick: () => gerarCobranca(row.original, 'PIX') },
+                  { label: 'Cobrar via Boleto', icon: 'i-lucide-file-text', onClick: () => gerarCobranca(row.original, 'BOLETO') },
+                ]
+              ]"
+            >
+              <UButton variant="ghost" color="primary" size="sm" icon="i-lucide-credit-card" />
+            </UDropdown>
+            <UButton
+              v-if="row.original.asaas_payment_id"
+              variant="ghost"
+              color="info"
+              size="sm"
+              icon="i-lucide-eye"
+              @click="verCobranca(row.original)"
+            />
             <UButton
               variant="ghost"
               size="sm"
@@ -131,6 +150,65 @@
         </div>
       </template>
     </UModal>
+
+    <UModal v-model:open="isCobrancaOpen">
+      <template #content>
+        <div class="p-6">
+          <h3 class="text-lg font-semibold mb-4">Cobrança Gerada</h3>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Fatura #{{ cobrancaData.invoiceId?.slice(0, 8) }} - R$ {{ cobrancaData.value?.toFixed(2) }}
+          </p>
+          
+          <div v-if="cobrancaData.billingType === 'PIX' && cobrancaData.pixQrCode" class="text-center">
+            <img 
+              :src="`data:image/png;base64,${cobrancaData.pixQrCode.encodedImage}`" 
+              alt="QR Code Pix"
+              class="mx-auto mb-4 w-48 h-48"
+            />
+            <p class="text-sm text-gray-500 mb-2">Escaneie o QR Code ou use o código abaixo:</p>
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs font-mono break-all mb-4">
+              {{ cobrancaData.pixQrCode.payload }}
+            </div>
+            <UButton
+              variant="soft"
+              icon="i-lucide-copy"
+              @click="copiarPix(cobrancaData.pixQrCode.payload)"
+            >
+              Copiar código Pix
+            </UButton>
+          </div>
+          
+          <div v-else-if="cobrancaData.billingType === 'BOLETO' && cobrancaData.invoiceUrl" class="text-center">
+            <p class="text-gray-600 dark:text-gray-300 mb-4">Boleto gerado com sucesso!</p>
+            <a 
+              :href="cobrancaData.invoiceUrl" 
+              target="_blank"
+              class="inline-block"
+            >
+              <UButton color="primary" icon="i-lucide external-link">
+                Abrir Boleto
+              </UButton>
+            </a>
+          </div>
+          
+          <div v-else class="text-center">
+            <p class="text-gray-600 dark:text-gray-300">Cobrança criada. Acesse o painel Asaas para visualizar.</p>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-6">
+            <UButton variant="soft" @click="isCobrancaOpen = false">Fechar</UButton>
+            <UButton 
+              v-if="cobrancaData.invoiceUrl" 
+              color="primary"
+              icon="i-lucide external-link"
+              @click="window.open(cobrancaData.invoiceUrl, '_blank')"
+            >
+              Ver no Asaas
+            </UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
 
@@ -156,10 +234,13 @@ const search = ref('')
 const filterStatus = ref('all')
 const isModalOpen = ref(false)
 const isDeleteOpen = ref(false)
+const isCobrancaOpen = ref(false)
 const isSubmitting = ref(false)
 const isDeleting = ref(false)
 const editingInvoice = ref<any>(null)
 const invoiceToDelete = ref<any>(null)
+const cobrancaData = ref<any>({})
+const isGerandoCobranca = ref(false)
 
 const formState = reactive<FormState>({
   clientId: '',
@@ -266,6 +347,60 @@ const openModal = (invoice?: any) => {
 const confirmDelete = (invoice: any) => {
   invoiceToDelete.value = invoice
   isDeleteOpen.value = true
+}
+
+const gerarCobranca = async (invoice: any, billingType: 'PIX' | 'BOLETO') => {
+  isGerandoCobranca.value = true
+  try {
+    const client = (clients.value as any[])?.find(c => c.id === invoice.client_id)
+    
+    if (!client?.asaas_customer_id) {
+      const customerResult = await $fetch('/api/asaas/create-customer', {
+        method: 'POST',
+        body: { clientId: invoice.client_id }
+      })
+    }
+    
+    const result = await $fetch('/api/asaas/create-payment', {
+      method: 'POST',
+      body: { invoiceId: invoice.id, billingType }
+    })
+    
+    if (result.success) {
+      cobrancaData.value = {
+        ...result.payment,
+        invoiceId: invoice.id,
+        value: invoice.amount
+      }
+      isCobrancaOpen.value = true
+      refreshInvoices()
+    }
+  } catch (e: any) {
+    toast.add({ title: e.data?.message || 'Erro ao gerar cobrança', color: 'error' })
+  } finally {
+    isGerandoCobranca.value = false
+  }
+}
+
+const verCobranca = async (invoice: any) => {
+  if (!invoice.asaas_payment_id) return
+  
+  try {
+    const result = await $fetch(`/api/asaas/payment-status/${invoice.asaas_payment_id}`)
+    if (result.payment) {
+      toast.add({ 
+        title: `Status: ${result.payment.status}`, 
+        color: result.payment.mappedStatus === 'paid' ? 'success' : 'info' 
+      })
+    }
+  } catch (e: any) {
+    toast.add({ title: 'Erro ao buscar status', color: 'error' })
+  }
+}
+
+const copiarPix = (texto: string) => {
+  navigator.clipboard.writeText(texto)
+  toast.add({ title: 'Código copiado!', color: 'success' })
 }
 
 const markAsPaid = async (invoice: any) => {
