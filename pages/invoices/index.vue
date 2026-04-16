@@ -250,6 +250,13 @@ type FormState = z.infer<typeof schema>
 const search = ref('')
 const filterStatus = ref('all')
 const filterType = ref('all')
+
+// DEVE ficar antes de filterMonth para evitar TDZ em produção (build minificado)
+const getCurrentMonthValue = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
 const filterMonth = ref(getCurrentMonthValue())
 const isModalOpen = ref(false)
 const isDeleteOpen = ref(false)
@@ -294,10 +301,8 @@ const typeOptions = [
   { label: 'Avulsas', value: 'standalone' },
 ]
 
-const getCurrentMonthValue = () => {
-  const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-}
+// getCurrentMonthValue foi movida para antes de filterMonth (linha ~254)
+// para evitar Temporal Dead Zone (TDZ) em builds de produção minificados
 
 const monthOptions = computed(() => {
   const now = new Date()
