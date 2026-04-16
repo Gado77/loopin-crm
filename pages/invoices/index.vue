@@ -602,6 +602,29 @@ const confirmarCancelar = (invoice: any) => {
   isCancelOpen.value = true
 }
 
+const markAsPaid = async (invoice: any) => {
+  const isPermuta = confirm(`Como deseja marcar essa fatura de ${invoice.clientName}?\n[OK] = Paga em Dinheiro\n[Cancelar] = Permuta (Gratuita)`)
+
+  // Se a pessoa confirmar (Ok) = Dinheiro. Se der (Cancerlar) = Permuta.
+  // Como confirm() não permite opções personalizadas, é rústico mas efetivo, 
+  // porém podemos usar o próprio modal do NuxtUI, mas para rapidez vamos de POST direto.
+  const status = isPermuta ? 'paid' : 'barter'
+  const method = isPermuta ? 'Dinheiro' : 'Permuta'
+
+  if (!confirm(`Confirmar fatura como ${method}? Isso reativará o cliente na rede DOOH se ele estiver bloqueado.`)) return
+
+  try {
+    await $fetch(`/api/invoices/${invoice.id}/mark-paid`, {
+      method: 'POST',
+      body: { status, paymentMethod: method }
+    })
+    toast.add({ title: `Fatura arquivada como ${method}!`, color: 'success' })
+    refreshInvoices()
+  } catch (e: any) {
+    toast.add({ title: e.data?.message || 'Erro ao atualizar fatura', color: 'error' })
+  }
+}
+
 const cancelarCobranca = async () => {
   if (!invoiceToCancel.value?.asaas_payment_id) return
 
