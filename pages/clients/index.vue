@@ -280,15 +280,7 @@ const isDetailOpen = ref(false)
 const isDeleteOpen = ref(false)
 const isSubmitting = ref(false)
 const isSyncing = ref(false)
-const isContractOpen = ref(false)
-const isGeneratingContract = ref(false)
-const contractForm = ref({
-  monthlyValue: 0,
-  months: 6,
-  startDate: new Date().toISOString().split('T')[0],
-})
 const isDeleting = ref(false)
-const isSyncing = ref(false)
 
 const formState = reactive<FormState>({
   name: '',
