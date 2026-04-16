@@ -281,6 +281,9 @@ const isDeleteOpen = ref(false)
 const isSubmitting = ref(false)
 const isSyncing = ref(false)
 const isDeleting = ref(false)
+const editingClient = ref<any>(null)
+const selectedClient = ref<any>(null)
+const clientToDelete = ref<any>(null)
 
 const formState = reactive<FormState>({
   name: '',
