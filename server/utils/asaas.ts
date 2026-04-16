@@ -184,37 +184,28 @@ export async function listarClientesAsaas(): Promise<{
   hasMore: boolean
   totalCount: number
 }> {
-  const allCustomers: AsaasCustomer[] = []
-  let offset = 0
-  const limit = 100
-  
-  while (true) {
-    const response = await fetch(`${ASAAS_BASE_URL}/v3/customers?limit=${limit}&offset=${offset}`, {
-      method: 'GET',
-      headers: getHeaders()
+  const response = await fetch(`${ASAAS_BASE_URL}/v3/customers?limit=100`, {
+    method: 'GET',
+    headers: getHeaders()
+  })
+
+  if (!response.ok) {
+    const errorData = await response.text()
+    console.error('[Asaas] Erro ao listar clientes:', response.status, errorData)
+    throw createError({
+      statusCode: response.status,
+      message: 'Erro ao listar clientes no Asaas: ' + errorData
     })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw createError({
-        statusCode: response.status,
-        message: error.errors?.[0]?.description || 'Erro ao listar clientes no Asaas'
-      })
-    }
-
-    const result = await response.json()
-    allCustomers.push(...result.data)
-    
-    if (!result.hasMore || result.data.length === 0) {
-      break
-    }
-    offset += limit
   }
 
+  const result = await response.json()
+  
+  const customers: AsaasCustomer[] = Array.isArray(result.data) ? result.data : (result || [])
+
   return {
-    data: allCustomers,
-    hasMore: false,
-    totalCount: allCustomers.length
+    data: customers,
+    hasMore: result.hasMore || false,
+    totalCount: customers.length
   }
 }
 
