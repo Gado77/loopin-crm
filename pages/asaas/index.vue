@@ -158,11 +158,34 @@
           </div>
 
           <div v-if="importPaymentsResult.details?.imported?.length" class="mt-2">
-            <p class="text-xs font-medium text-gray-600 mb-1">{{ importPaymentsResult.dryRun ? 'Seriam importadas:' : 'Importadas:' }}</p>
-            <div class="max-h-32 overflow-y-auto space-y-0.5">
-              <p v-for="item in importPaymentsResult.details.imported" :key="item" class="text-xs text-gray-500">
-                • {{ item }}
+            <p class="text-xs font-medium text-gray-600 mb-1">{{ importPaymentsResult.dryRun ? '💡 Seriam importadas:' : '✅ Importadas:' }}</p>
+            <div class="max-h-48 overflow-y-auto space-y-0.5 bg-gray-50 dark:bg-gray-800/50 rounded p-2">
+              <p v-for="(item, idx) in importPaymentsResult.details.imported" :key="idx" class="text-xs text-gray-600 dark:text-gray-300 font-mono">
+                {{ item }}
               </p>
+            </div>
+          </div>
+
+          <!-- Detalhes extras do dry run -->
+          <div v-if="importPaymentsResult.dryRun && importPaymentsResult.details?.dryRunDetails?.length" class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <p class="text-xs font-medium text-blue-700 dark:text-blue-300 mb-2">📋 Detalhes da simulação:</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+              <div class="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                <p class="text-sm font-bold text-blue-600">{{ getDryRunTotal(importPaymentsResult.details.dryRunDetails) }}</p>
+                <p class="text-xs text-gray-500">Total (R$)</p>
+              </div>
+              <div class="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                <p class="text-sm font-bold text-purple-600">{{ importPaymentsResult.details.dryRunDetails.filter((d: any) => d.billingType === 'PIX').length }}</p>
+                <p class="text-xs text-gray-500">PIX</p>
+              </div>
+              <div class="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                <p class="text-sm font-bold text-orange-600">{{ importPaymentsResult.details.dryRunDetails.filter((d: any) => d.billingType === 'BOLETO').length }}</p>
+                <p class="text-xs text-gray-500">Boleto</p>
+              </div>
+              <div class="text-center p-2 bg-white dark:bg-gray-800 rounded">
+                <p class="text-sm font-bold text-green-600">{{ importPaymentsResult.details.dryRunDetails.filter((d: any) => d.crmStatus === 'paid').length }}</p>
+                <p class="text-xs text-gray-500">Já pagas</p>
+              </div>
             </div>
           </div>
         </div>
@@ -304,6 +327,11 @@ const reload = () => {
 const copyWebhookUrl = () => {
   navigator.clipboard.writeText(webhookUrl.value)
   toast.add({ title: 'URL copiada!', color: 'success' })
+}
+
+const getDryRunTotal = (details: any[]) => {
+  if (!details?.length) return 0
+  return details.reduce((sum: number, d: any) => sum + (d.value || 0), 0).toFixed(2).replace('.', ',')
 }
 
 const importarFaturas = async (dryRun: boolean) => {

@@ -52,17 +52,26 @@ export default defineEventHandler(async (event) => {
   const allPayments: any[] = []
   let offset = 0
   const limit = 100
+  const maxPayments = 5000
 
   while (true) {
+    if (allPayments.length >= maxPayments) {
+      console.warn(`[import-payments] Limite de ${maxPayments} cobranças atingido`)
+      break
+    }
+
     const params: any = { limit, offset }
     if (statusFilter) params.status = statusFilter
 
     const page = await listarCobrancasAsaas(params)
-    allPayments.push(...(page.data || []))
+    const pageData = page.data || []
+    allPayments.push(...pageData)
 
-    console.log(`[import-payments] Página offset=${offset}: ${page.data?.length ?? 0} cobranças (total até agora: ${allPayments.length})`)
+    console.log(`[import-payments] Página offset=${offset}: ${pageData.length} cobranças (total até agora: ${allPayments.length})`)
 
-    if (!page.hasMore || (page.data?.length ?? 0) === 0) break
+    if (!pageData.length) break
+    if (page.hasMore === false) break
+    if (pageData.length < limit) break
     offset += limit
   }
 
@@ -70,16 +79,17 @@ export default defineEventHandler(async (event) => {
 
   // ─── Processar cada cobrança ───────────────────────────────────────────────
   const imported: string[] = []
+  const dryRunDetails: any[] = []
   const skippedExists: string[] = []
   const skippedNoClient: string[] = []
   const errors: string[] = []
 
   for (const payment of allPayments) {
-    const paymentLabel = `${payment.id} (R$ ${payment.value} — ${payment.billingType})`
+    const paymentLabel = `${payment.id} (${payment.billingType})`
 
     // Já existe no CRM?
     if (existingPaymentIds.has(payment.id)) {
-      skippedExists.push(paymentLabel)
+      skippedExists.push(`${paymentLabel} — já existe no CRM`)
       continue
     }
 
@@ -97,13 +107,28 @@ export default defineEventHandler(async (event) => {
 
     // Cliente não encontrado no CRM
     if (!clientId) {
-      skippedNoClient.push(`${paymentLabel} — customer_asaas: ${payment.customer}`)
+      skippedNoClient.push(`${paymentLabel} (R$ ${payment.value}) — cliente Asaas ${payment.customer} não vinculado`)
       console.warn(`[import-payments] Cliente Asaas não encontrado no CRM: ${payment.customer}`)
       continue
     }
 
     // Mapear status
     const crmStatus = mapearStatusAsaas(payment.status)
+
+    // Dry run: salvar detalhes para exibir
+    if (dryRun) {
+      dryRunDetails.push({
+        clientName,
+        paymentId: payment.id,
+        value: payment.value,
+        billingType: payment.billingType,
+        dueDate: payment.dueDate,
+        status: payment.status,
+        crmStatus,
+      })
+      imported.push(`${clientName} — R$ ${payment.value} (${payment.billingType}) — venc: ${payment.dueDate} → ${crmStatus}`)
+      continue
+    }
 
     // Montar o registro da fatura
     const invoiceData = {
@@ -118,11 +143,6 @@ export default defineEventHandler(async (event) => {
       asaas_payment_id: payment.id,
       asaas_billing_type: payment.billingType,
       created_at: payment.dateCreated || new Date().toISOString(),
-    }
-
-    if (dryRun) {
-      imported.push(`[DRY RUN] ${clientName} — ${paymentLabel} → ${crmStatus}`)
-      continue
     }
 
     const { error: insertError } = await db.from('invoices').insert(invoiceData)
@@ -142,7 +162,7 @@ export default defineEventHandler(async (event) => {
     success: true,
     dryRun,
     message: dryRun
-      ? `Simulação: ${imported.length} seriam importadas`
+      ? `Simulação: ${imported.length} cobranças seriam importadas`
       : `Importação concluída! ${imported.length} fatura(s) importada(s) do Asaas.`,
     counts: {
       total: allPayments.length,
@@ -155,7 +175,8 @@ export default defineEventHandler(async (event) => {
       imported,
       skippedExists,
       skippedNoClient,
-      errors
+      errors,
+      ...(dryRun && { dryRunDetails })
     }
   }
 })
