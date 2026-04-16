@@ -8,9 +8,6 @@
       <UButton color="primary" icon="i-lucide-plus" @click="openModal()">
         Nova Fatura
       </UButton>
-      <UButton variant="soft" color="success" icon="i-lucide-calendar-plus" @click="openContractModal()">
-        Gerar Contrato
-      </UButton>
     </div>
 
     <div class="flex flex-wrap gap-4 mb-6">
@@ -213,74 +210,6 @@
       </template>
     </UModal>
 
-    <UModal v-model:open="isContractOpen">
-      <template #content>
-        <div class="p-6">
-          <h3 class="text-lg font-semibold mb-4">Gerar Contrato Recorrente</h3>
-          <p class="text-gray-600 dark:text-gray-300 mb-4">
-            Criar faturas mensais automáticas para o cliente.
-          </p>
-          
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Cliente</label>
-              <USelect
-                v-model="contractForm.clientId"
-                :items="clientOptions"
-                placeholder="Selecione o cliente"
-                class="w-full"
-              />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium mb-1">Valor Mensal (R$)</label>
-              <UInput
-                v-model.number="contractForm.monthlyValue"
-                type="number"
-                placeholder="197"
-                class="w-full"
-              />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium mb-1">Quantidade de Meses</label>
-              <USelect 
-                v-model="contractForm.months" 
-                :items="[
-                  { label: '1 Mês', value: 1 },
-                  { label: '3 Meses', value: 3 },
-                  { label: '6 Meses', value: 6 },
-                  { label: '12 Meses', value: 12 },
-                ]" 
-                class="w-full"
-              />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium mb-1">Data de Início</label>
-              <UInput
-                v-model="contractForm.startDate"
-                type="date"
-                class="w-full"
-              />
-            </div>
-            
-            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <p class="text-sm text-gray-500 mb-2">Resumo:</p>
-              <p class="font-medium">Total: R$ {{ ((contractForm.monthlyValue || 0) * (contractForm.months || 1)).toFixed(2) }}</p>
-              <p class="text-sm text-gray-500">{{ contractForm.months }} parcela(s) de R$ {{ contractForm.monthlyValue }}</p>
-            </div>
-            
-            <div class="flex justify-end gap-3 mt-6">
-              <UButton variant="soft" @click="isContractOpen = false">Cancelar</UButton>
-              <UButton color="success" :loading="isGeneratingContract" @click="generateContract">
-                Gerar Faturas
-              </UButton>
-            </div>
-          </div>
-        </div>
-      </template>
-    </UModal>
   </div>
 </template>
 
@@ -313,14 +242,6 @@ const editingInvoice = ref<any>(null)
 const invoiceToDelete = ref<any>(null)
 const cobrancaData = ref<any>({})
 const isGerandoCobranca = ref(false)
-const isContractOpen = ref(false)
-const isGeneratingContract = ref(false)
-const contractForm = ref({
-  clientId: '',
-  monthlyValue: 197,
-  months: 6,
-  startDate: new Date().toISOString().split('T')[0],
-})
 
 const formState = reactive<FormState>({
   clientId: '',
@@ -480,42 +401,6 @@ const verCobranca = async (invoice: any) => {
 
 const copiarPix = (texto: string) => {
   navigator.clipboard.writeText(texto)
-}
-
-const openContractModal = () => {
-  contractForm.value = {
-    clientId: '',
-    monthlyValue: 197,
-    months: 6,
-    startDate: new Date().toISOString().split('T')[0],
-  }
-  isContractOpen.value = true
-}
-
-const generateContract = async () => {
-  if (!contractForm.value.clientId) {
-    toast.add({ title: 'Selecione um cliente', color: 'error' })
-    return
-  }
-  isGeneratingContract.value = true
-  try {
-    await $fetch(`/api/clients/${contractForm.value.clientId}/generate-contract`, {
-      method: 'POST',
-      body: {
-        clientId: contractForm.value.clientId,
-        months: contractForm.value.months,
-        startDate: contractForm.value.startDate,
-        monthlyValue: contractForm.value.monthlyValue,
-      },
-    })
-    toast.add({ title: 'Contrato gerado com sucesso!', color: 'success' })
-    isContractOpen.value = false
-    refreshInvoices()
-  } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao gerar contrato', color: 'error' })
-  } finally {
-    isGeneratingContract.value = false
-  }
 }
 
 const markAsPaid = async (invoice: any) => {
