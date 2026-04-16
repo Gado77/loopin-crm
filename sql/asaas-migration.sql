@@ -51,6 +51,38 @@ CREATE INDEX IF NOT EXISTS idx_invoices_client_id ON invoices(client_id);
 ALTER TABLE contracts ADD COLUMN IF NOT EXISTS asaas_subscription_id TEXT;
 CREATE INDEX IF NOT EXISTS idx_contracts_asaas_subscription_id ON contracts(asaas_subscription_id);
 
+-- 8. Tabela para assinaturas do Asaas
+CREATE TABLE IF NOT EXISTS asaas_subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  asaas_id TEXT UNIQUE NOT NULL,
+  client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
+  description TEXT,
+  value NUMERIC NOT NULL DEFAULT 0,
+  cycle TEXT DEFAULT 'MONTHLY',
+  billing_type TEXT,
+  next_due_date DATE,
+  status TEXT DEFAULT 'ACTIVE',
+  installments INTEGER,
+  last_payment_date DATE,
+  external_reference TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE asaas_subscriptions ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'asaas_subscriptions' AND policyname = 'Allow all on asaas_subscriptions'
+  ) THEN
+    CREATE POLICY "Allow all on asaas_subscriptions" ON asaas_subscriptions FOR ALL USING (true);
+  END IF;
+END$$;
+
+CREATE INDEX IF NOT EXISTS idx_asaas_subscriptions_asaas_id ON asaas_subscriptions(asaas_id);
+CREATE INDEX IF NOT EXISTS idx_asaas_subscriptions_client_id ON asaas_subscriptions(client_id);
+CREATE INDEX IF NOT EXISTS idx_asaas_subscriptions_status ON asaas_subscriptions(status);
+
 -- 6. Verificação final
 SELECT '=== invoices ===' AS tabela;
 SELECT column_name, data_type, is_nullable

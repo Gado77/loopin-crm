@@ -254,9 +254,32 @@ const toast = useToast()
 
 const { data: contracts, refresh: refreshContracts } = await useFetch('/api/contracts')
 const { data: clients } = await useFetch('/api/clients')
+const { data: asaasData, refresh: refreshAsaasSubscriptions } = await useFetch('/api/asaas/subscriptions', {
+  server: false,
+  default: () => null
+})
 
-onMounted(() => {
-  loadCachedSubscriptions()
+const asaasSubscriptions = computed(() => {
+  return (asaasData.value?.subscriptions || []).map((s: any) => ({
+    id: s.asaas_id,
+    source: 'asaas',
+    sourceId: s.asaas_id,
+    clientId: s.client_id,
+    clientName: s.clients?.name || s.external_reference || 'Cliente não encontrado',
+    clientEmail: s.clients?.email || '',
+    description: s.description,
+    value: s.value,
+    cycle: s.cycle,
+    billingType: s.billing_type,
+    nextDueDate: s.next_due_date,
+    startDate: s.next_due_date,
+    status: s.status,
+    asaasId: s.asaas_id,
+    totalMonths: s.installments || null,
+    totalValue: s.installments ? s.value * s.installments : null,
+    lastPaymentDate: s.last_payment_date || null,
+    paidCount: null,
+  }))
 })
 
 const isModalOpen = ref(false)
@@ -264,7 +287,6 @@ const isDetailOpen = ref(false)
 const isSubmitting = ref(false)
 const isLoadingAsaas = ref(false)
 const selectedSubscription = ref<any>(null)
-const asaasSubscriptions = ref<any[]>([])
 
 const form = ref({
   clientId: '',
@@ -420,45 +442,13 @@ const getActions = (subscription: any) => {
 const syncAsaasSubscriptions = async () => {
   isLoadingAsaas.value = true
   try {
-    const result = await $fetch('/api/asaas/import-subscriptions')
-    asaasSubscriptions.value = (result.subscriptions || []).map((s: any) => {
-      const client = (clients.value || []).find((c: any) => c.asaas_customer_id === s.customer)
-      return {
-        id: s.id,
-        source: 'asaas',
-        sourceId: s.id,
-        clientId: client?.id || null,
-        clientName: client?.name || s.customer,
-        clientEmail: client?.email || '',
-        description: s.description,
-        value: s.value,
-        cycle: s.cycle,
-        billingType: s.billingType,
-        nextDueDate: s.nextDueDate,
-        startDate: s.nextDueDate,
-        status: s.status,
-        asaasId: s.id,
-        totalMonths: s.installments || null,
-        totalValue: s.installments ? s.value * s.installments : null,
-        lastPaymentDate: s.lastPaymentDate || null,
-        paidCount: null,
-      }
-    })
-    localStorage.setItem('asaasSubscriptions', JSON.stringify(asaasSubscriptions.value))
-    toast.add({ title: `${asaasSubscriptions.value.length} assinaturas carregadas do Asaas`, color: 'success' })
+    const result = await $fetch('/api/asaas/subscriptions?sync=true')
+    toast.add({ title: result.message, color: 'success' })
+    refreshAsaasSubscriptions()
   } catch (e: any) {
     toast.add({ title: e.data?.message || 'Erro ao sincronizar', color: 'error' })
   } finally {
     isLoadingAsaas.value = false
-  }
-}
-
-const loadCachedSubscriptions = () => {
-  const cached = localStorage.getItem('asaasSubscriptions')
-  if (cached) {
-    try {
-      asaasSubscriptions.value = JSON.parse(cached)
-    } catch {}
   }
 }
 
