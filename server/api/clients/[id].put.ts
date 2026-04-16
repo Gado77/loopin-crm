@@ -40,9 +40,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Sync to Loopin.tv DISABLED - causes data to revert
-  // The sync should only happen from Loopin.tv -> CRM, not the other way
-  // This prevents client data from being overwritten by old Loopin.tv data
-
   return { id, ...body }
 })
