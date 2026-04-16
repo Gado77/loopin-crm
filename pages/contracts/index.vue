@@ -255,6 +255,10 @@ const toast = useToast()
 const { data: contracts, refresh: refreshContracts } = await useFetch('/api/contracts')
 const { data: clients } = await useFetch('/api/clients')
 
+onMounted(() => {
+  loadCachedSubscriptions()
+})
+
 const isModalOpen = ref(false)
 const isDetailOpen = ref(false)
 const isSubmitting = ref(false)
@@ -440,11 +444,21 @@ const syncAsaasSubscriptions = async () => {
         paidCount: null,
       }
     })
+    localStorage.setItem('asaasSubscriptions', JSON.stringify(asaasSubscriptions.value))
     toast.add({ title: `${asaasSubscriptions.value.length} assinaturas carregadas do Asaas`, color: 'success' })
   } catch (e: any) {
     toast.add({ title: e.data?.message || 'Erro ao sincronizar', color: 'error' })
   } finally {
     isLoadingAsaas.value = false
+  }
+}
+
+const loadCachedSubscriptions = () => {
+  const cached = localStorage.getItem('asaasSubscriptions')
+  if (cached) {
+    try {
+      asaasSubscriptions.value = JSON.parse(cached)
+    } catch {}
   }
 }
 
