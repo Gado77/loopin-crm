@@ -7,8 +7,7 @@ export default defineEventHandler(async () => {
     .from('invoices')
     .select(`
       *,
-      client:clients(name),
-      contract:contracts(id, monthly_value, months)
+      client:clients(name)
     `)
     .order('due_date', { ascending: true })
 
