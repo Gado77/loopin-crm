@@ -1,27 +1,30 @@
-import { useDb, generateId } from '../../utils/db'
+import { useDb } from '../../utils/db'
 
 export default defineEventHandler(async () => {
   const db = useDb()
   
-  const { data, error } = await db
-    .from('contracts')
-    .select(`
-      *,
-      clients:client_id (
-        id,
-        name,
-        email,
-        phone
-      )
-    `)
-    .order('created_at', { ascending: false })
+  try {
+    const { data, error } = await db
+      .from('contracts')
+      .select(`
+        *,
+        clients:client_id (
+          id,
+          name,
+          email,
+          phone
+        )
+      `)
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    throw createError({
-      statusCode: 500,
-      message: error.message,
-    })
+    if (error) {
+      console.error('[Contracts API] Error:', error)
+      return []
+    }
+
+    return data || []
+  } catch (err) {
+    console.error('[Contracts API] Unexpected error:', err)
+    return []
   }
-
-  return data
 })
