@@ -13,7 +13,7 @@
     </div>
 
     <UCard class="bg-white dark:bg-gray-900">
-      <div class="flex items-center gap-4 mb-4">
+      <div class="flex items-center gap-4 mb-4 flex-wrap">
         <UInput
           v-model="search"
           placeholder="Buscar anunciante..."
@@ -24,6 +24,12 @@
           v-model="filterStatus"
           :items="statusOptions"
           placeholder="Status"
+        />
+        <USelect
+          v-model="filterAsaas"
+          :items="asaasOptions"
+          placeholder="Asaas"
+          class="w-40"
         />
       </div>
 
@@ -166,6 +172,29 @@
             </div>
             </div>
 
+            <div class="border-t pt-4">
+              <h4 class="font-medium mb-3 flex items-center gap-2">
+                <UIcon name="i-lucide-credit-card" class="w-4 h-4" />
+                Integração Asaas
+              </h4>
+              <div v-if="selectedClient.asaas_customer_id" class="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                <div class="flex items-center gap-2 text-green-700 dark:text-green-400">
+                  <UIcon name="i-lucide-check-circle" class="w-5 h-5" />
+                  <span class="font-medium">Vinculado ao Asaas</span>
+                </div>
+                <p class="text-sm text-green-600 dark:text-green-500 mt-1 font-mono">
+                  ID: {{ selectedClient.asaas_customer_id }}
+                </p>
+              </div>
+              <div v-else class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                <div class="flex items-center gap-2 text-gray-500">
+                  <UIcon name="i-lucide-x-circle" class="w-5 h-5" />
+                  <span>Não vinculado ao Asaas</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">Crie uma cobrança para vincular automaticamente</p>
+              </div>
+            </div>
+
             <div>
             </div>
 
@@ -245,6 +274,7 @@ type FormState = z.infer<typeof schema>
 
 const search = ref('')
 const filterStatus = ref('all')
+const filterAsaas = ref('all')
 const isModalOpen = ref(false)
 const isDetailOpen = ref(false)
 const isDeleteOpen = ref(false)
@@ -281,6 +311,12 @@ const statusOptions = [
   { label: 'Cancelado', value: 'cancelled' },
 ]
 
+const asaasOptions = [
+  { label: 'Todos', value: 'all' },
+  { label: 'Vinculados ao Asaas', value: 'linked' },
+  { label: 'Não vinculados', value: 'unlinked' },
+]
+
 const getStatusColor = (status: string) => {
   return status === 'active' ? 'success' : status === 'paused' ? 'warning' : 'error'
 }
@@ -312,9 +348,23 @@ const getInvoiceStatusLabel = (status: string) => {
 
 const columns = [
   { accessorKey: 'name', header: 'Anunciante' },
+  { accessorKey: 'asaas_customer_id', header: 'Asaas', cell: ({ row }: any) => {
+    const hasAsaas = !!row.original.asaas_customer_id
+    return h('div', { class: 'flex items-center' }, [
+      h('span', {
+        class: `inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${
+          hasAsaas 
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+            : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+        }`
+      }, [
+        h('span', { class: hasAsaas ? 'i-lucide-check-circle' : 'i-lucide-x-circle', class: 'w-3 h-3' }),
+        hasAsaas ? 'Vinculado' : 'Não vinculado'
+      ])
+    ])
+  }},
   { accessorKey: 'contact_name', header: 'Contato', cell: ({ row }: any) => row.original.contact_name || '-' },
   { accessorKey: 'segment', header: 'Segmento', cell: ({ row }: any) => row.original.segment || '-' },
-  { accessorKey: 'email', header: 'Email', cell: ({ row }: any) => row.original.email || '-' },
   { accessorKey: 'phone', header: 'Telefone', cell: ({ row }: any) => row.original.phone || '-' },
   { accessorKey: 'actions' },
 ]
@@ -325,6 +375,12 @@ const filteredClients = computed(() => {
 
   if (filterStatus.value !== 'all') {
     result = result.filter((c: any) => c.status === filterStatus.value)
+  }
+
+  if (filterAsaas.value === 'linked') {
+    result = result.filter((c: any) => !!c.asaas_customer_id)
+  } else if (filterAsaas.value === 'unlinked') {
+    result = result.filter((c: any) => !c.asaas_customer_id)
   }
 
   if (search.value) {
