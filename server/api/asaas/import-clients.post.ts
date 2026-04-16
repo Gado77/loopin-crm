@@ -5,7 +5,10 @@ export default defineEventHandler(async () => {
   const db = useDb()
   
   try {
+    console.log('[Import] Iniciando importação de clientes do Asaas...')
     const asaasClients = await listarClientesAsaas()
+    console.log(`[Import] Encontrados ${asaasClients.data.length} clientes no Asaas`)
+    
     const imported: string[] = []
     const skipped: string[] = []
     const errors: string[] = []
@@ -43,6 +46,8 @@ export default defineEventHandler(async () => {
       }
     }
 
+    console.log(`[Import] Concluído: ${imported.length} importados, ${skipped.length} ignorados, ${errors.length} erros`)
+    
     return {
       success: true,
       message: `Importação concluída!`,
@@ -56,6 +61,7 @@ export default defineEventHandler(async () => {
       }
     }
   } catch (error: any) {
+    console.error('[Import] Erro:', error)
     throw createError({
       statusCode: error.statusCode || 500,
       message: error.message || 'Erro ao importar clientes do Asaas'
