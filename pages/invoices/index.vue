@@ -670,16 +670,6 @@ const openExternalUrl = (url: string) => {
   window.open(url, '_blank')
 }
 
-const markAsPaid = async (invoice: any) => {
-  try {
-    await $fetch(`/api/invoices/${invoice.id}/pay`, { method: 'POST' })
-    toast.add({ title: 'Fatura liquidada!', color: 'success' })
-    refreshInvoices()
-  } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao processar', color: 'error' })
-  }
-}
-
 const handleSubmit = async () => {
   isSubmitting.value = true
   try {
