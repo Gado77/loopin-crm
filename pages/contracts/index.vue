@@ -256,7 +256,25 @@ const { data: contracts, refresh: refreshContracts } = await useFetch('/api/cont
 const { data: clients } = await useFetch('/api/clients')
 const { data: asaasData, refresh: refreshAsaasSubscriptions } = await useFetch('/api/asaas/subscriptions', {
   server: false,
-  default: () => null
+  default: () => null,
+  transform: (data: any) => data
+})
+
+const syncAsaasSubscriptions = async () => {
+  isLoadingAsaas.value = true
+  try {
+    const result = await $fetch('/api/asaas/subscriptions?sync=true')
+    toast.add({ title: result.message, color: 'success' })
+    refreshAsaasSubscriptions()
+  } catch (e: any) {
+    toast.add({ title: e.data?.message || 'Erro ao sincronizar', color: 'error' })
+  } finally {
+    isLoadingAsaas.value = false
+  }
+}
+
+onMounted(() => {
+  syncAsaasSubscriptions()
 })
 
 const asaasSubscriptions = computed(() => {
@@ -437,19 +455,6 @@ const getActions = (subscription: any) => {
   }
 
   return items
-}
-
-const syncAsaasSubscriptions = async () => {
-  isLoadingAsaas.value = true
-  try {
-    const result = await $fetch('/api/asaas/subscriptions?sync=true')
-    toast.add({ title: result.message, color: 'success' })
-    refreshAsaasSubscriptions()
-  } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao sincronizar', color: 'error' })
-  } finally {
-    isLoadingAsaas.value = false
-  }
 }
 
 const openModal = () => {

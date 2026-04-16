@@ -6,9 +6,6 @@
         <p class="text-gray-500 dark:text-gray-400">Gerencie marcas e anunciantes da sua rede</p>
       </div>
       <div class="flex gap-2">
-        <UButton variant="soft" icon="i-lucide-refresh-ccw" :loading="isSyncing" @click="syncFromLoopin()">
-          Sincronizar
-        </UButton>
         <UButton color="primary" icon="i-lucide-plus" @click="openModal()">
           Novo Anunciante
         </UButton>
@@ -252,7 +249,6 @@ const isModalOpen = ref(false)
 const isDetailOpen = ref(false)
 const isDeleteOpen = ref(false)
 const isSubmitting = ref(false)
-const isSyncing = ref(false)
 const isDeleting = ref(false)
 const editingClient = ref<any>(null)
 const selectedClient = ref<any>(null)
@@ -392,25 +388,6 @@ const viewClient = async (client: any) => {
 const confirmDelete = (client: any) => {
   clientToDelete.value = client
   isDeleteOpen.value = true
-}
-
-const syncFromLoopin = async () => {
-  isSyncing.value = true
-  try {
-    await $fetch('https://sxsmirhqbslmvyesikgg.supabase.co/functions/v1/sync-advertisers', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4c21pcmhxYnNsbXZ5ZXNpa2dnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mzg2MzA5NiwiZXhwIjoyMDc5NDM5MDk2fQ.nF46cCyaQ-gGeZRExtXVk7YRwBLkxKg8uSmQsxLi1_Q',
-        'Content-Type': 'application/json'
-      }
-    })
-    toast.add({ title: 'Sincronizado!', color: 'success' })
-    refreshClients()
-  } catch (e: any) {
-    toast.add({ title: 'Erro ao sincronizar', color: 'error' })
-  } finally {
-    isSyncing.value = false
-  }
 }
 
 const handleSubmit = async () => {

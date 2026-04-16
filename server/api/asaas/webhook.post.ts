@@ -26,11 +26,12 @@ export default defineEventHandler(async (event) => {
     if (paymentData?.externalReference) {
       const { data: invoice, error } = await db
         .from('invoices')
-        .select('id, status')
+        .select('id, status, client_id')
         .eq('id', paymentData.externalReference)
         .single()
 
       if (!error && invoice && invoice.status !== 'paid') {
+        // Atualiza a fatura
         await db
           .from('invoices')
           .update({
@@ -39,8 +40,23 @@ export default defineEventHandler(async (event) => {
             payment_method: paymentData.billingType
           })
           .eq('id', invoice.id)
-
+          
         console.log(`[Webhook] Fatura ${invoice.id} marcada como paga via ${paymentData.billingType}`)
+
+        // Se encontrou o cliente vinculado, atualiza status dele para ativo
+        if (invoice.client_id) {
+          const { error: clientError } = await db
+            .from('clients')
+            .update({ status: 'active' })
+            .eq('id', invoice.client_id)
+            
+          if (!clientError) {
+            console.log(`[Webhook] Cliente ${invoice.client_id} ativado após pagamento!`)
+            // Notifica o Loopin.tv para ativar as campanhas
+            const { notifyLoopinTv } = await import('../../utils/loopin-tv')
+            await notifyLoopinTv(invoice.client_id, 'activate')
+          }
+        }
       }
     }
   }
