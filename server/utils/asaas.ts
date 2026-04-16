@@ -1,17 +1,26 @@
+/**
+ * Asaas API Client — Loopin CRM
+ * Usa useRuntimeConfig() dentro de cada função para garantir que a key
+ * seja lida corretamente em ambientes serverless (Vercel / Nitro).
+ */
+
 const ASAAS_BASE_URL = 'https://api.asaas.com'
-const ASAAS_API_KEY = process.env.ASAAS_API_KEY
+
+// ─── Tipos ────────────────────────────────────────────────────────────────────
 
 export interface AsaasCustomer {
   id: string
   name: string
-  email: string
-  phone: string
-  cpfCnpj: string
-  postalCode: string
-  address: string
-  addressNumber: string
-  complement: string
-  province: string
+  email?: string
+  phone?: string
+  mobilePhone?: string
+  cpfCnpj?: string
+  postalCode?: string
+  address?: string
+  addressNumber?: string
+  complement?: string
+  province?: string
+  externalReference?: string
 }
 
 export interface AsaasPayment {
@@ -20,73 +29,135 @@ export interface AsaasPayment {
   billingType: 'PIX' | 'BOLETO' | 'CREDIT_CARD' | 'UNDEFINED'
   value: number
   dueDate: string
-  status: 'PENDING' | 'CONFIRMED' | 'RECEIVED' | 'OVERDUE' | 'REFUNDED' | 'CANCELLED'
+  status: 'PENDING' | 'CONFIRMED' | 'RECEIVED' | 'OVERDUE' | 'REFUNDED' | 'REFUND_REQUESTED' | 'CANCELLED'
+  description?: string
+  externalReference?: string
+  invoiceUrl?: string
+  bankSlipUrl?: string
+  bankSlipLink?: string
   pixQrCode?: {
     encodedImage: string
     payload: string
     expirationDate: string
   }
-  invoiceUrl?: string
-  bankSlipLink?: string
 }
 
+export interface AsaasPixQrCode {
+  encodedImage: string
+  payload: string
+  expirationDate: string
+}
+
+export interface AsaasPaymentList {
+  data: AsaasPayment[]
+  hasMore: boolean
+  totalCount: number
+  limit: number
+  offset: number
+}
+
+export interface AsaasCustomerList {
+  data: AsaasCustomer[]
+  hasMore: boolean
+  totalCount: number
+}
+
+// ─── Helper interno ───────────────────────────────────────────────────────────
+
 function getHeaders() {
-  if (!ASAAS_API_KEY) {
+  const config = useRuntimeConfig()
+  const apiKey = config.asaasApiKey as string
+
+  if (!apiKey) {
     throw createError({
       statusCode: 500,
-      message: 'ASAAS_API_KEY não configurada'
+      message: 'ASAAS_API_KEY não configurada. Configure a variável de ambiente.'
     })
   }
+
   return {
     'Content-Type': 'application/json',
-    'access_token': ASAAS_API_KEY
+    'access_token': apiKey
   }
 }
+
+async function asaasFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const url = `${ASAAS_BASE_URL}${path}`
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...getHeaders(),
+      ...(options.headers as Record<string, string> || {})
+    }
+  })
+
+  if (!response.ok) {
+    let errorMsg = `Erro Asaas ${response.status}`
+    try {
+      const body = await response.json()
+      errorMsg = body.errors?.[0]?.description || body.message || errorMsg
+    } catch {}
+
+    throw createError({
+      statusCode: response.status,
+      message: errorMsg
+    })
+  }
+
+  return response.json()
+}
+
+// ─── Clientes ─────────────────────────────────────────────────────────────────
 
 export async function criarClienteAsaas(data: {
   name: string
   email?: string
   phone?: string
+  mobilePhone?: string
   cpfCnpj?: string
   postalCode?: string
   address?: string
   addressNumber?: string
   complement?: string
   province?: string
+  externalReference?: string
 }): Promise<AsaasCustomer> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/customers`, {
+  return asaasFetch<AsaasCustomer>('/v3/customers', {
     method: 'POST',
-    headers: getHeaders(),
     body: JSON.stringify(data)
   })
+}
 
-  if (!response.ok) {
-    const error = await response.json()
-    throw createError({
-      statusCode: response.status,
-      message: error.errors?.[0]?.description || 'Erro ao criar cliente no Asaas'
-    })
-  }
-
-  return response.json()
+export async function atualizarClienteAsaas(
+  asaasCustomerId: string,
+  data: Partial<{
+    name: string
+    email: string
+    phone: string
+    mobilePhone: string
+    cpfCnpj: string
+    postalCode: string
+    address: string
+    addressNumber: string
+    complement: string
+    province: string
+  }>
+): Promise<AsaasCustomer> {
+  return asaasFetch<AsaasCustomer>(`/v3/customers/${asaasCustomerId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
 }
 
 export async function buscarClienteAsaas(asaasCustomerId: string): Promise<AsaasCustomer> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/customers/${asaasCustomerId}`, {
-    method: 'GET',
-    headers: getHeaders()
-  })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw createError({
-      statusCode: response.status,
-      message: error.errors?.[0]?.description || 'Erro ao buscar cliente no Asaas'
-    })
-  }
-
-  return response.json()
+  return asaasFetch<AsaasCustomer>(`/v3/customers/${asaasCustomerId}`)
 }
+
+export async function listarClientesAsaas(limit = 100, offset = 0): Promise<AsaasCustomerList> {
+  return asaasFetch<AsaasCustomerList>(`/v3/customers?limit=${limit}&offset=${offset}`)
+}
+
+// ─── Cobranças ────────────────────────────────────────────────────────────────
 
 export async function criarCobrancaAsaas(data: {
   customer: string
@@ -95,119 +166,79 @@ export async function criarCobrancaAsaas(data: {
   dueDate: string
   description?: string
   externalReference?: string
+  postalService?: boolean
 }): Promise<AsaasPayment> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/payments`, {
+  return asaasFetch<AsaasPayment>('/v3/payments', {
     method: 'POST',
-    headers: getHeaders(),
     body: JSON.stringify(data)
   })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw createError({
-      statusCode: response.status,
-      message: error.errors?.[0]?.description || 'Erro ao criar cobrança no Asaas'
-    })
-  }
-
-  return response.json()
 }
 
 export async function buscarCobrancaAsaas(paymentId: string): Promise<AsaasPayment> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/payments/${paymentId}`, {
-    method: 'GET',
-    headers: getHeaders()
-  })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw createError({
-      statusCode: response.status,
-      message: error.errors?.[0]?.description || 'Erro ao buscar cobrança no Asaas'
-    })
-  }
-
-  return response.json()
+  return asaasFetch<AsaasPayment>(`/v3/payments/${paymentId}`)
 }
 
-export async function obterQrCodePix(paymentId: string): Promise<{
-  encodedImage: string
-  payload: string
-  expirationDate: string
-}> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/payments/${paymentId}/pixQrCode`, {
-    method: 'GET',
-    headers: getHeaders()
+export async function listarCobrancasAsaas(params: {
+  customer?: string
+  status?: string
+  limit?: number
+  offset?: number
+} = {}): Promise<AsaasPaymentList> {
+  const q = new URLSearchParams()
+  if (params.customer) q.set('customer', params.customer)
+  if (params.status) q.set('status', params.status)
+  q.set('limit', String(params.limit ?? 50))
+  q.set('offset', String(params.offset ?? 0))
+
+  return asaasFetch<AsaasPaymentList>(`/v3/payments?${q.toString()}`)
+}
+
+export async function obterQrCodePix(paymentId: string): Promise<AsaasPixQrCode> {
+  return asaasFetch<AsaasPixQrCode>(`/v3/payments/${paymentId}/pixQrCode`)
+}
+
+export async function reenviarCobrancaAsaas(paymentId: string): Promise<{ success: boolean }> {
+  return asaasFetch<{ success: boolean }>(
+    `/v3/payments/${paymentId}/sendEmailNotification`,
+    { method: 'POST' }
+  )
+}
+
+export async function cancelarCobrancaAsaas(paymentId: string): Promise<{ id: string; deleted: boolean }> {
+  return asaasFetch<{ id: string; deleted: boolean }>(
+    `/v3/payments/${paymentId}/cancel`,
+    { method: 'POST' }
+  )
+}
+
+export async function reembolsarCobrancaAsaas(
+  paymentId: string,
+  value?: number
+): Promise<AsaasPayment> {
+  return asaasFetch<AsaasPayment>(`/v3/payments/${paymentId}/refund`, {
+    method: 'POST',
+    body: value !== undefined ? JSON.stringify({ value }) : undefined
   })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw createError({
-      statusCode: response.status,
-      message: error.errors?.[0]?.description || 'Erro ao obter QR Code Pix'
-    })
-  }
-
-  return response.json()
 }
 
 export async function criarLinkPagamento(data: {
-  customer: string
-  billingType: 'PIX' | 'BOLETO' | 'CREDIT_CARD'
-  value: number
-  dueDate: string
   name: string
+  billingType: 'PIX' | 'BOLETO' | 'CREDIT_CARD' | 'UNDEFINED'
+  chargeType: 'DETACHED' | 'RECURRENT'
+  value?: number
+  dueDateLimitDays?: number
+  subscriptionCycle?: string
   description?: string
-}): Promise<{
-  id: string
-  url: string
-}> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/paymentLinks`, {
+  endDate?: string
+  maxInstallmentCount?: number
+}): Promise<{ id: string; url: string }> {
+  return asaasFetch<{ id: string; url: string }>('/v3/paymentLinks', {
     method: 'POST',
-    headers: getHeaders(),
     body: JSON.stringify(data)
   })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw createError({
-      statusCode: response.status,
-      message: error.errors?.[0]?.description || 'Erro ao criar link de pagamento'
-    })
-  }
-
-  return response.json()
 }
 
-export async function listarClientesAsaas(): Promise<{
-  data: AsaasCustomer[]
-  hasMore: boolean
-  totalCount: number
-}> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/customers?limit=100`, {
-    method: 'GET',
-    headers: getHeaders()
-  })
-
-  if (!response.ok) {
-    const errorData = await response.text()
-    console.error('[Asaas] Erro ao listar clientes:', response.status, errorData)
-    throw createError({
-      statusCode: response.status,
-      message: 'Erro ao listar clientes no Asaas: ' + errorData
-    })
-  }
-
-  const result = await response.json()
-  
-  const customers: AsaasCustomer[] = Array.isArray(result.data) ? result.data : (result || [])
-
-  return {
-    data: customers,
-    hasMore: result.hasMore || false,
-    totalCount: customers.length
-  }
-}
+// ─── Status mapping ───────────────────────────────────────────────────────────
 
 export function mapearStatusAsaas(asaasStatus: string): string {
   switch (asaasStatus) {
@@ -218,48 +249,22 @@ export function mapearStatusAsaas(asaasStatus: string): string {
       return 'overdue'
     case 'CANCELLED':
       return 'cancelled'
+    case 'REFUNDED':
+    case 'REFUND_REQUESTED':
+      return 'refunded'
     case 'PENDING':
     default:
       return 'pending'
   }
 }
 
-export async function reenviarCobrancaAsaas(paymentId: string): Promise<{
-  id: string
-  status: string
-}> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/payments/${paymentId}/sendEmailNotification`, {
-    method: 'POST',
-    headers: getHeaders()
-  })
+// ─── Teste de conectividade ───────────────────────────────────────────────────
 
-  if (!response.ok) {
-    const error = await response.json()
-    throw createError({
-      statusCode: response.status,
-      message: error.errors?.[0]?.description || 'Erro ao reenviar cobrança'
-    })
+export async function testarConexaoAsaas(): Promise<{ connected: boolean; account?: string; error?: string }> {
+  try {
+    const data = await asaasFetch<{ name: string; email: string }>('/v3/myAccount')
+    return { connected: true, account: data.name || data.email }
+  } catch (err: any) {
+    return { connected: false, error: err.message }
   }
-
-  return response.json()
-}
-
-export async function cancelarCobrancaAsaas(paymentId: string): Promise<{
-  id: string
-  status: string
-}> {
-  const response = await fetch(`${ASAAS_BASE_URL}/v3/payments/${paymentId}/cancel`, {
-    method: 'POST',
-    headers: getHeaders()
-  })
-
-  if (!response.ok) {
-    const error = await response.json()
-    throw createError({
-      statusCode: response.status,
-      message: error.errors?.[0]?.description || 'Erro ao cancelar cobrança'
-    })
-  }
-
-  return response.json()
 }

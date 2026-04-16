@@ -24,6 +24,10 @@ export default defineNuxtConfig({
     databaseUrl: process.env.DATABASE_URL,
     databaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     jwtSecret: process.env.JWT_SECRET,
+    asaasApiKey: process.env.ASAAS_API_KEY,
+    asaasWebhookSecret: process.env.ASAAS_WEBHOOK_SECRET,
+    loopinTvFunctionsUrl: process.env.LOOPIN_TV_FUNCTIONS_URL,
+    loopinTvServiceRoleKey: process.env.LOOPIN_TV_SERVICE_ROLE_KEY,
     public: {
       appName: 'Loopin CRM'
     }

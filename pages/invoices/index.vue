@@ -76,7 +76,16 @@
               @click="gerarCobranca(row.original, 'BOLETO')"
             />
             <UButton
-              v-if="row.original.asaas_payment_id"
+              v-if="row.original.status === 'pending' || row.original.status === 'overdue'"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              icon="i-lucide-credit-card"
+              title="Cobrar via Cartão"
+              @click="gerarCobranca(row.original, 'CREDIT_CARD')"
+            />
+            <UButton
+              v-if="row.original.asaas_payment_id && (row.original.status === 'pending' || row.original.status === 'overdue')"
               variant="ghost"
               color="info"
               size="sm"
@@ -85,13 +94,22 @@
               @click="reenviarCobranca(row.original)"
             />
             <UButton
-              v-if="row.original.asaas_payment_id"
+              v-if="row.original.asaas_payment_id && (row.original.status === 'pending' || row.original.status === 'overdue')"
               variant="ghost"
               color="error"
               size="sm"
               icon="i-lucide-x-circle"
               title="Cancelar Cobrança"
               @click="confirmarCancelar(row.original)"
+            />
+            <UButton
+              v-if="row.original.asaas_payment_id && row.original.status === 'paid'"
+              variant="ghost"
+              color="warning"
+              size="sm"
+              icon="i-lucide-rotate-ccw"
+              title="Estornar Pagamento"
+              @click="confirmarEstorno(row.original)"
             />
             <UButton
               variant="ghost"
@@ -261,6 +279,25 @@
       </template>
     </UModal>
 
+    <UModal v-model:open="isEstornoOpen">
+      <template #content>
+        <div class="p-6">
+          <h3 class="text-lg font-semibold mb-4 text-orange-500">Estornar Pagamento</h3>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Deseja solicitar o estorno do pagamento de
+            <strong>R$ {{ invoiceToRefund?.amount?.toFixed(2) }}</strong>
+            para <strong>{{ invoiceToRefund?.clientName }}</strong>?
+            <br><br>
+            O estorno será processado pelo Asaas e pode levar alguns dias úteis.
+          </p>
+          <div class="flex justify-end gap-3 mt-6">
+            <UButton variant="soft" @click="isEstornoOpen = false">Cancelar</UButton>
+            <UButton color="warning" @click="estornarCobranca">Confirmar Estorno</UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
+
   </div>
 </template>
 
@@ -327,6 +364,7 @@ const statusOptions = [
   { label: 'Pago', value: 'paid' },
   { label: 'Atrasado', value: 'overdue' },
   { label: 'Cancelado', value: 'cancelled' },
+  { label: 'Estornado', value: 'refunded' },
   { label: 'Permuta', value: 'barter' },
 ]
 
@@ -385,6 +423,7 @@ const getStatusColor = (status: string) => {
     paid: 'success',
     overdue: 'error',
     cancelled: 'neutral',
+    refunded: 'info',
     barter: 'info',
   }
   return colors[status] || 'neutral'
@@ -480,28 +519,20 @@ const confirmDelete = (invoice: any) => {
   isDeleteOpen.value = true
 }
 
-const gerarCobranca = async (invoice: any, billingType: 'PIX' | 'BOLETO') => {
+const gerarCobranca = async (invoice: any, billingType: 'PIX' | 'BOLETO' | 'CREDIT_CARD') => {
   isGerandoCobranca.value = true
   try {
-    const client = (clients.value as any[])?.find(c => c.id === invoice.client_id)
-    
-    if (!client?.asaas_customer_id) {
-      const customerResult = await $fetch('/api/asaas/create-customer', {
-        method: 'POST',
-        body: { clientId: invoice.client_id }
-      })
-    }
-    
     const result = await $fetch('/api/asaas/create-payment', {
       method: 'POST',
       body: { invoiceId: invoice.id, billingType }
     })
-    
+
     if (result.success) {
       cobrancaData.value = {
         ...result.payment,
         invoiceId: invoice.id,
-        value: invoice.amount
+        value: invoice.amount,
+        alreadyExists: result.alreadyExists
       }
       isCobrancaOpen.value = true
       refreshInvoices()
@@ -563,6 +594,8 @@ const reenviarCobranca = async (invoice: any) => {
 
 const isCancelOpen = ref(false)
 const invoiceToCancel = ref<any>(null)
+const isEstornoOpen = ref(false)
+const invoiceToRefund = ref<any>(null)
 
 const confirmarCancelar = (invoice: any) => {
   invoiceToCancel.value = invoice
@@ -571,17 +604,38 @@ const confirmarCancelar = (invoice: any) => {
 
 const cancelarCobranca = async () => {
   if (!invoiceToCancel.value?.asaas_payment_id) return
-  
+
   try {
     await $fetch('/api/asaas/cancel-payment', {
       method: 'POST',
-      body: { paymentId: invoiceToCancel.value.asaas_payment_id }
+      body: { paymentId: invoiceToCancel.value.asaas_payment_id, invoiceId: invoiceToCancel.value.id }
     })
     toast.add({ title: 'Cobrança cancelada!', color: 'success' })
     isCancelOpen.value = false
     refreshInvoices()
   } catch (e: any) {
     toast.add({ title: e.data?.message || 'Erro ao cancelar cobrança', color: 'error' })
+  }
+}
+
+const confirmarEstorno = (invoice: any) => {
+  invoiceToRefund.value = invoice
+  isEstornoOpen.value = true
+}
+
+const estornarCobranca = async () => {
+  if (!invoiceToRefund.value?.asaas_payment_id) return
+
+  try {
+    await $fetch('/api/asaas/refund-payment', {
+      method: 'POST',
+      body: { paymentId: invoiceToRefund.value.asaas_payment_id, invoiceId: invoiceToRefund.value.id }
+    })
+    toast.add({ title: 'Estorno solicitado com sucesso!', color: 'success' })
+    isEstornoOpen.value = false
+    refreshInvoices()
+  } catch (e: any) {
+    toast.add({ title: e.data?.message || 'Erro ao estornar pagamento', color: 'error' })
   }
 }
 
