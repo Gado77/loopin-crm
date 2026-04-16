@@ -1,4 +1,4 @@
-const ASAAS_BASE_URL = 'https://api-sandbox.asaas.com'
+const ASAAS_BASE_URL = 'https://api.asaas.com'
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY
 
 export interface AsaasCustomer {
@@ -192,4 +192,44 @@ export function mapearStatusAsaas(asaasStatus: string): string {
     default:
       return 'pending'
   }
+}
+
+export async function reenviarCobrancaAsaas(paymentId: string): Promise<{
+  id: string
+  status: string
+}> {
+  const response = await fetch(`${ASAAS_BASE_URL}/v3/payments/${paymentId}/sendEmailNotification`, {
+    method: 'POST',
+    headers: getHeaders()
+  })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw createError({
+      statusCode: response.status,
+      message: error.errors?.[0]?.description || 'Erro ao reenviar cobrança'
+    })
+  }
+
+  return response.json()
+}
+
+export async function cancelarCobrancaAsaas(paymentId: string): Promise<{
+  id: string
+  status: string
+}> {
+  const response = await fetch(`${ASAAS_BASE_URL}/v3/payments/${paymentId}/cancel`, {
+    method: 'POST',
+    headers: getHeaders()
+  })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw createError({
+      statusCode: response.status,
+      message: error.errors?.[0]?.description || 'Erro ao cancelar cobrança'
+    })
+  }
+
+  return response.json()
 }

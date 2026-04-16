@@ -1,0 +1,46 @@
+import { reenviarCobrancaAsaas } from '../../utils/asaas'
+import { useDb } from '../../utils/db'
+
+export default defineEventHandler(async (event) => {
+  const db = useDb()
+  const body = await readBody(event)
+
+  if (!body.paymentId && !body.invoiceId) {
+    throw createError({
+      statusCode: 400,
+      message: 'paymentId ou invoiceId é obrigatório'
+    })
+  }
+
+  let paymentId = body.paymentId
+
+  if (!paymentId && body.invoiceId) {
+    const { data: invoice } = await db
+      .from('invoices')
+      .select('asaas_payment_id')
+      .eq('id', body.invoiceId)
+      .single()
+    
+    if (!invoice?.asaas_payment_id) {
+      throw createError({
+        statusCode: 400,
+        message: 'Fatura não possui cobrança no Asaas'
+      })
+    }
+    paymentId = invoice.asaas_payment_id
+  }
+
+  try {
+    const result = await reenviarCobrancaAsaas(paymentId)
+    return {
+      success: true,
+      message: 'Cobrança reenviada por e-mail',
+      data: result
+    }
+  } catch (error: any) {
+    throw createError({
+      statusCode: error.statusCode || 500,
+      message: error.message || 'Erro ao reenviar cobrança'
+    })
+  }
+})

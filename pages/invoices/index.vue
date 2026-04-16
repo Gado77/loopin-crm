@@ -57,24 +57,11 @@
               @click="markAsPaid(row.original)"
             />
             <UDropdown
-              v-if="row.original.status === 'pending' || row.original.status === 'overdue'"
-              :items="[
-                [
-                  { label: 'Cobrar via Pix', icon: 'i-lucide-qr-code', onClick: () => gerarCobranca(row.original, 'PIX') },
-                  { label: 'Cobrar via Boleto', icon: 'i-lucide-file-text', onClick: () => gerarCobranca(row.original, 'BOLETO') },
-                ]
-              ]"
+              v-if="row.original.status === 'pending' || row.original.status === 'overdue' || row.original.asaas_payment_id"
+              :items="getActionItems(row.original)"
             >
               <UButton variant="ghost" color="primary" size="sm" icon="i-lucide-credit-card" />
             </UDropdown>
-            <UButton
-              v-if="row.original.asaas_payment_id"
-              variant="ghost"
-              color="info"
-              size="sm"
-              icon="i-lucide-eye"
-              @click="verCobranca(row.original)"
-            />
             <UButton
               variant="ghost"
               size="sm"
@@ -216,11 +203,26 @@
             <UButton 
               v-if="cobrancaData.invoiceUrl" 
               color="primary"
-              icon="i-lucide external-link"
-              @click="window.open(cobrancaData.invoiceUrl, '_blank')"
+              icon="i-lucide-external-link"
+              @click="openExternalUrl(cobrancaData.invoiceUrl)"
             >
               Ver no Asaas
             </UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
+
+    <UModal v-model:open="isCancelOpen">
+      <template #content>
+        <div class="p-6">
+          <h3 class="text-lg font-semibold mb-4 text-red-600">Cancelar Cobrança</h3>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Tem certeza que deseja cancelar esta cobrança? Esta ação não pode ser desfeita.
+          </p>
+          <div class="flex justify-end gap-3 mt-6">
+            <UButton variant="soft" @click="isCancelOpen = false">Voltar</UButton>
+            <UButton color="error" @click="cancelarCobranca">Confirmar Cancelamento</UButton>
           </div>
         </div>
       </template>
@@ -494,8 +496,68 @@ const verCobranca = async (invoice: any) => {
   }
 }
 
+const getActionItems = (invoice: any) => {
+  const items: any[][] = []
+  
+  if (!invoice.asaas_payment_id) {
+    items.push([
+      { label: 'Cobrar via Pix', icon: 'i-lucide-qr-code', onClick: () => gerarCobranca(invoice, 'PIX') },
+      { label: 'Cobrar via Boleto', icon: 'i-lucide-file-text', onClick: () => gerarCobranca(invoice, 'BOLETO') },
+    ])
+  } else {
+    items.push([
+      { label: 'Reenviar Cobrança', icon: 'i-lucide-send', onClick: () => reenviarCobranca(invoice) },
+      { label: 'Cancelar Cobrança', icon: 'i-lucide-x-circle', onClick: () => confirmarCancelar(invoice) },
+    ])
+  }
+  
+  return items
+}
+
+const reenviarCobranca = async (invoice: any) => {
+  if (!invoice.asaas_payment_id) return
+  
+  try {
+    const result = await $fetch('/api/asaas/resend-payment', {
+      method: 'POST',
+      body: { paymentId: invoice.asaas_payment_id }
+    })
+    toast.add({ title: result.message || 'Cobrança reenviada!', color: 'success' })
+  } catch (e: any) {
+    toast.add({ title: e.data?.message || 'Erro ao reenviar cobrança', color: 'error' })
+  }
+}
+
+const isCancelOpen = ref(false)
+const invoiceToCancel = ref<any>(null)
+
+const confirmarCancelar = (invoice: any) => {
+  invoiceToCancel.value = invoice
+  isCancelOpen.value = true
+}
+
+const cancelarCobranca = async () => {
+  if (!invoiceToCancel.value?.asaas_payment_id) return
+  
+  try {
+    await $fetch('/api/asaas/cancel-payment', {
+      method: 'POST',
+      body: { paymentId: invoiceToCancel.value.asaas_payment_id }
+    })
+    toast.add({ title: 'Cobrança cancelada!', color: 'success' })
+    isCancelOpen.value = false
+    refreshInvoices()
+  } catch (e: any) {
+    toast.add({ title: e.data?.message || 'Erro ao cancelar cobrança', color: 'error' })
+  }
+}
+
 const copiarPix = (texto: string) => {
   navigator.clipboard.writeText(texto)
+}
+
+const openExternalUrl = (url: string) => {
+  window.open(url, '_blank')
 }
 
 const markAsPaid = async (invoice: any) => {
