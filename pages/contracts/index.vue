@@ -164,42 +164,81 @@
       <template #content>
         <div class="p-6" v-if="selectedSubscription">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold">{{ selectedSubscription.description || 'Assinatura' }}</h3>
-            <UBadge :color="getStatusColor(selectedSubscription.status)">
+            <div>
+              <h3 class="text-lg font-semibold">{{ selectedSubscription.description || 'Assinatura' }}</h3>
+              <p class="text-xs text-gray-500 mt-1">
+                <UBadge :color="selectedSubscription.source === 'asaas' ? 'purple' : 'info'" variant="soft" size="xs">
+                  {{ selectedSubscription.source === 'asaas' ? 'Asaas' : 'CRM' }}
+                </UBadge>
+              </p>
+            </div>
+            <UBadge :color="getStatusColor(selectedSubscription.status)" class="text-sm">
               {{ getStatusLabel(selectedSubscription.status) }}
             </UBadge>
           </div>
           
           <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
             <p class="font-medium text-lg">{{ selectedSubscription.clientName }}</p>
-            <p class="text-sm text-gray-500">{{ selectedSubscription.source === 'asaas' ? 'Via Asaas' : 'Local CRM' }}</p>
+            <p class="text-sm text-gray-500">{{ selectedSubscription.clientEmail }}</p>
           </div>
           
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <p class="text-sm text-gray-500">Valor</p>
-              <p class="font-medium text-green-600">R$ {{ selectedSubscription.value?.toFixed(2) }}</p>
+          <!-- Informações da Assinatura -->
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <p class="text-xs text-gray-500 mb-1">Valor</p>
+              <p class="font-bold text-green-600 text-lg">R$ {{ selectedSubscription.value?.toFixed(2) }}</p>
+              <p class="text-xs text-gray-500">por {{ getCycleLabel(selectedSubscription.cycle) }}</p>
             </div>
-            <div>
-              <p class="text-sm text-gray-500">Ciclo</p>
-              <p class="font-medium">{{ selectedSubscription.cycle }}</p>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <p class="text-xs text-gray-500 mb-1">Forma de Pagamento</p>
+              <p class="font-medium">{{ getBillingTypeLabel(selectedSubscription.billingType) }}</p>
             </div>
-            <div>
-              <p class="text-sm text-gray-500">Próximo Vencimento</p>
-              <p class="font-medium">{{ formatDate(selectedSubscription.nextDueDate || selectedSubscription.start_date) }}</p>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <p class="text-xs text-gray-500 mb-1">Início</p>
+              <p class="font-medium">{{ formatDate(selectedSubscription.start_date || selectedSubscription.nextDueDate) }}</p>
             </div>
-            <div>
-              <p class="text-sm text-gray-500">ID Asaas</p>
-              <p class="font-medium text-xs font-mono">{{ selectedSubscription.asaasId || '-' }}</p>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <p class="text-xs text-gray-500 mb-1">Próximo Vencimento</p>
+              <p class="font-medium" :class="isOverdue(selectedSubscription.nextDueDate) ? 'text-red-600' : ''">
+                {{ formatDate(selectedSubscription.nextDueDate) }}
+                <span v-if="isOverdue(selectedSubscription.nextDueDate)" class="text-xs text-red-500 ml-1">(atrasado)</span>
+              </p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg" v-if="selectedSubscription.totalMonths">
+              <p class="text-xs text-gray-500 mb-1">Duração</p>
+              <p class="font-medium">{{ selectedSubscription.totalMonths }} meses</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg" v-if="selectedSubscription.paidCount !== undefined">
+              <p class="text-xs text-gray-500 mb-1">Parcelas</p>
+              <p class="font-medium">{{ selectedSubscription.paidCount || 0 }} / {{ selectedSubscription.totalMonths || '∞' }}</p>
             </div>
           </div>
 
-          <div v-if="selectedSubscription.asaasId" class="flex gap-2">
-            <UButton variant="soft" size="sm" @click="resendNotification(selectedSubscription.asaasId)">
+          <!-- Info Adicional -->
+          <div class="border-t pt-4 mb-4">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-500">ID Asaas</span>
+              <span class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                {{ selectedSubscription.asaasId || '-' }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-sm mt-2" v-if="selectedSubscription.lastPaymentDate">
+              <span class="text-gray-500">Último Pagamento</span>
+              <span class="font-medium">{{ formatDate(selectedSubscription.lastPaymentDate) }}</span>
+            </div>
+            <div class="flex items-center justify-between text-sm mt-2" v-if="selectedSubscription.totalValue">
+              <span class="text-gray-500">Valor Total</span>
+              <span class="font-medium text-green-600">R$ {{ selectedSubscription.totalValue?.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <!-- Ações -->
+          <div class="flex gap-2">
+            <UButton variant="soft" size="sm" @click="resendNotification(selectedSubscription.asaasId)" v-if="selectedSubscription.asaasId">
               Reenviar Notificação
             </UButton>
-            <UButton v-if="selectedSubscription.status === 'ACTIVE'" variant="soft" color="error" size="sm" @click="cancelSubscription(selectedSubscription)">
-              Cancelar
+            <UButton variant="soft" color="error" size="sm" @click="cancelSubscription(selectedSubscription)" v-if="selectedSubscription.asaasId && selectedSubscription.status === 'ACTIVE'">
+              Cancelar Assinatura
             </UButton>
           </div>
         </div>
@@ -252,10 +291,15 @@ const allSubscriptions = computed(() => {
     description: c.name,
     value: c.monthly_value,
     cycle: 'MONTHLY',
+    billingType: null,
     nextDueDate: null,
     startDate: c.start_date,
+    endDate: c.end_date,
     status: c.status,
     asaasId: c.asaas_subscription_id || null,
+    totalMonths: c.months || c.total_months || null,
+    totalValue: c.total_value || c.monthly_value ? (c.monthly_value * (c.months || c.total_months || 1)) : null,
+    paidCount: null,
   }))
 
   return [...local, ...asaasSubscriptions.value]
@@ -321,6 +365,25 @@ const getStatusLabel = (status: string) => {
   }
 }
 
+const getCycleLabel = (cycle: string) => {
+  switch (cycle) {
+    case 'WEEKLY': return 'semana'
+    case 'MONTHLY': return 'mês'
+    case 'QUARTERLY': return 'trimestre'
+    case 'YEARLY': return 'ano'
+    default: return cycle?.toLowerCase() || 'mês'
+  }
+}
+
+const getBillingTypeLabel = (billingType: string) => {
+  switch (billingType) {
+    case 'PIX': return 'PIX'
+    case 'BOLETO': return 'Boleto'
+    case 'CREDIT_CARD': return 'Cartão de Crédito'
+    default: return billingType || '-'
+  }
+}
+
 const getActions = (subscription: any) => {
   const items = [
     [{
@@ -366,10 +429,15 @@ const syncAsaasSubscriptions = async () => {
         description: s.description,
         value: s.value,
         cycle: s.cycle,
+        billingType: s.billingType,
         nextDueDate: s.nextDueDate,
         startDate: s.nextDueDate,
         status: s.status,
         asaasId: s.id,
+        totalMonths: s.installments || null,
+        totalValue: s.installments ? s.value * s.installments : null,
+        lastPaymentDate: s.lastPaymentDate || null,
+        paidCount: null,
       }
     })
     toast.add({ title: `${asaasSubscriptions.value.length} assinaturas carregadas do Asaas`, color: 'success' })
