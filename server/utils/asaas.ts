@@ -179,6 +179,45 @@ export async function criarLinkPagamento(data: {
   return response.json()
 }
 
+export async function listarClientesAsaas(): Promise<{
+  data: AsaasCustomer[]
+  hasMore: boolean
+  totalCount: number
+}> {
+  const allCustomers: AsaasCustomer[] = []
+  let offset = 0
+  const limit = 100
+  
+  while (true) {
+    const response = await fetch(`${ASAAS_BASE_URL}/v3/customers?limit=${limit}&offset=${offset}`, {
+      method: 'GET',
+      headers: getHeaders()
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw createError({
+        statusCode: response.status,
+        message: error.errors?.[0]?.description || 'Erro ao listar clientes no Asaas'
+      })
+    }
+
+    const result = await response.json()
+    allCustomers.push(...result.data)
+    
+    if (!result.hasMore || result.data.length === 0) {
+      break
+    }
+    offset += limit
+  }
+
+  return {
+    data: allCustomers,
+    hasMore: false,
+    totalCount: allCustomers.length
+  }
+}
+
 export function mapearStatusAsaas(asaasStatus: string): string {
   switch (asaasStatus) {
     case 'CONFIRMED':

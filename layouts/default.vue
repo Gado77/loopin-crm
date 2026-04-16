@@ -140,6 +140,11 @@ const navigationItems = [
     to: '/financial',
     icon: 'i-lucide-credit-card',
   },
+  {
+    label: 'Integração Asaas',
+    to: '/asaas',
+    icon: 'i-lucide-plug',
+  },
 ]
 
 const logout = async () => {

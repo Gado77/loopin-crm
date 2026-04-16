@@ -47,25 +47,57 @@
           <UBadge v-else variant="soft" color="neutral">Avulsa</UBadge>
         </template>
         <template #actions-cell="{ row }">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
             <UButton
               v-if="row.original.status === 'pending' || row.original.status === 'overdue'"
               variant="ghost"
               color="success"
               size="sm"
               icon="i-lucide-check"
+              title="Marcar como Pago"
               @click="markAsPaid(row.original)"
             />
-            <UDropdown
-              v-if="row.original.status === 'pending' || row.original.status === 'overdue' || row.original.asaas_payment_id"
-              :items="getActionItems(row.original)"
-            >
-              <UButton variant="ghost" color="primary" size="sm" icon="i-lucide-credit-card" />
-            </UDropdown>
+            <UButton
+              v-if="row.original.status === 'pending' || row.original.status === 'overdue'"
+              variant="ghost"
+              color="primary"
+              size="sm"
+              icon="i-lucide-qr-code"
+              title="Cobrar via Pix"
+              @click="gerarCobranca(row.original, 'PIX')"
+            />
+            <UButton
+              v-if="row.original.status === 'pending' || row.original.status === 'overdue'"
+              variant="ghost"
+              color="warning"
+              size="sm"
+              icon="i-lucide-file-text"
+              title="Cobrar via Boleto"
+              @click="gerarCobranca(row.original, 'BOLETO')"
+            />
+            <UButton
+              v-if="row.original.asaas_payment_id"
+              variant="ghost"
+              color="info"
+              size="sm"
+              icon="i-lucide-send"
+              title="Reenviar Cobrança"
+              @click="reenviarCobranca(row.original)"
+            />
+            <UButton
+              v-if="row.original.asaas_payment_id"
+              variant="ghost"
+              color="error"
+              size="sm"
+              icon="i-lucide-x-circle"
+              title="Cancelar Cobrança"
+              @click="confirmarCancelar(row.original)"
+            />
             <UButton
               variant="ghost"
               size="sm"
               icon="i-lucide-pencil"
+              title="Editar"
               @click="openModal(row.original)"
             />
             <UButton
@@ -73,6 +105,7 @@
               color="error"
               size="sm"
               icon="i-lucide-trash-2"
+              title="Excluir"
               @click="confirmDelete(row.original)"
             />
           </div>
