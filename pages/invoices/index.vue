@@ -17,6 +17,12 @@
         placeholder="Status"
         class="w-40"
       />
+      <USelect
+        v-model="filterType"
+        :items="typeOptions"
+        placeholder="Tipo"
+        class="w-40"
+      />
       <UInput
         v-model="search"
         placeholder="Buscar anunciante..."
@@ -29,6 +35,10 @@
       <UTable :data="filteredInvoices" :columns="columns" class="w-full">
         <template #status-cell="{ row }">
           <UBadge :color="getStatusColor(row.original.status)">{{ getStatusLabel(row.original.status) }}</UBadge>
+        </template>
+        <template #contract-cell="{ row }">
+          <UBadge v-if="row.original.contract_id" variant="soft" color="info">Contrato</UBadge>
+          <UBadge v-else variant="soft" color="neutral">Avulsa</UBadge>
         </template>
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
@@ -233,6 +243,7 @@ type FormState = z.infer<typeof schema>
 
 const search = ref('')
 const filterStatus = ref('all')
+const filterType = ref('all')
 const isModalOpen = ref(false)
 const isDeleteOpen = ref(false)
 const isCobrancaOpen = ref(false)
@@ -262,6 +273,12 @@ const statusOptions = [
   { label: 'Atrasado', value: 'overdue' },
   { label: 'Cancelado', value: 'cancelled' },
   { label: 'Permuta', value: 'barter' },
+]
+
+const typeOptions = [
+  { label: 'Todas', value: 'all' },
+  { label: 'De Contrato', value: 'contract' },
+  { label: 'Avulsas', value: 'standalone' },
 ]
 
 const paymentMethods = [
@@ -299,7 +316,7 @@ const columns = [
   { accessorKey: 'clientName', header: 'Anunciante' },
   { accessorKey: 'amount', header: 'Valor (R$)', cell: ({ row }: any) => `R$ ${(row.original.amount || 0).toFixed(2)}` },
   { accessorKey: 'due_date', header: 'Vencimento', cell: ({ row }: any) => formatDate(row.original.due_date) },
-  { accessorKey: 'payment_method', header: 'Meio Pgto', cell: ({ row }: any) => row.original.payment_method || '-' },
+  { accessorKey: 'contract', header: 'Tipo', cell: 'contract-cell' },
   { accessorKey: 'status', header: 'Status' },
   { accessorKey: 'actions' },
 ]
@@ -310,6 +327,12 @@ const filteredInvoices = computed(() => {
   
   if (filterStatus.value !== 'all') {
     result = result.filter((i: any) => i.status === filterStatus.value)
+  }
+  
+  if (filterType.value === 'contract') {
+    result = result.filter((i: any) => i.contract_id)
+  } else if (filterType.value === 'standalone') {
+    result = result.filter((i: any) => !i.contract_id)
   }
   
   if (search.value) {
