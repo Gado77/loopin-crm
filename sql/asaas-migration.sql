@@ -47,6 +47,10 @@ CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status);
 CREATE INDEX IF NOT EXISTS idx_invoices_due_date ON invoices(due_date);
 CREATE INDEX IF NOT EXISTS idx_invoices_client_id ON invoices(client_id);
 
+-- 7. Coluna asaas_subscription_id em contracts
+ALTER TABLE contracts ADD COLUMN IF NOT EXISTS asaas_subscription_id TEXT;
+CREATE INDEX IF NOT EXISTS idx_contracts_asaas_subscription_id ON contracts(asaas_subscription_id);
+
 -- 6. Verificação final
 SELECT '=== invoices ===' AS tabela;
 SELECT column_name, data_type, is_nullable

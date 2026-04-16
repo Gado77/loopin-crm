@@ -126,9 +126,9 @@ const navigationItems = [
     icon: 'i-lucide-users',
   },
   {
-    label: 'Contratos',
+    label: 'Assinaturas',
     to: '/contracts',
-    icon: 'i-lucide-file-signature',
+    icon: 'i-lucide-repeat',
   },
   {
     label: 'Faturas',

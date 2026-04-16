@@ -62,6 +62,31 @@ export interface AsaasCustomerList {
   totalCount: number
 }
 
+export interface AsaasSubscription {
+  id: string
+  customer: string
+  billingType: 'PIX' | 'BOLETO' | 'CREDIT_CARD' | 'UNDEFINED'
+  value: number
+  cycle: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY'
+  nextDueDate: string
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'CANCELLED' | 'EXPIRED'
+  description?: string
+  externalReference?: string
+  lastPaymentDate?: string
+  paymentLink?: string
+  miniumValue?: number
+  fineForAfterPayment?: number
+  interestForAfterPayment?: number
+}
+
+export interface AsaasSubscriptionList {
+  data: AsaasSubscription[]
+  hasMore: boolean
+  totalCount: number
+  limit: number
+  offset: number
+}
+
 // ─── Helper interno ───────────────────────────────────────────────────────────
 
 function getHeaders() {
@@ -235,6 +260,64 @@ export async function criarLinkPagamento(data: {
   return asaasFetch<{ id: string; url: string }>('/v3/paymentLinks', {
     method: 'POST',
     body: JSON.stringify(data)
+  })
+}
+
+// ─── Assinaturas ────────────────────────────────────────────────────────────────
+
+export async function criarAssinaturaAsaas(data: {
+  customer: string
+  billingType: 'PIX' | 'BOLETO' | 'CREDIT_CARD'
+  value: number
+  cycle: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY'
+  nextDueDate: string
+  description?: string
+  externalReference?: string
+  installments?: number
+}): Promise<AsaasSubscription> {
+  return asaasFetch<AsaasSubscription>('/v3/subscriptions', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+
+export async function buscarAssinaturaAsaas(subscriptionId: string): Promise<AsaasSubscription> {
+  return asaasFetch<AsaasSubscription>(`/v3/subscriptions/${subscriptionId}`)
+}
+
+export async function listarAssinaturasAsaas(params: {
+  customer?: string
+  status?: string
+  limit?: number
+  offset?: number
+} = {}): Promise<AsaasSubscriptionList> {
+  const q = new URLSearchParams()
+  if (params.customer) q.set('customer', params.customer)
+  if (params.status) q.set('status', params.status)
+  q.set('limit', String(params.limit ?? 100))
+  q.set('offset', String(params.offset ?? 0))
+
+  return asaasFetch<AsaasSubscriptionList>(`/v3/subscriptions?${q.toString()}`)
+}
+
+export async function atualizarAssinaturaAsaas(
+  subscriptionId: string,
+  data: Partial<{
+    description: string
+    value: number
+    nextDueDate: string
+    billingType: 'PIX' | 'BOLETO' | 'CREDIT_CARD'
+  }>
+): Promise<AsaasSubscription> {
+  return asaasFetch<AsaasSubscription>(`/v3/subscriptions/${subscriptionId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+}
+
+export async function cancelarAssinaturaAsaas(subscriptionId: string): Promise<AsaasSubscription> {
+  return asaasFetch<AsaasSubscription>(`/v3/subscriptions/${subscriptionId}/cancel`, {
+    method: 'POST'
   })
 }
 

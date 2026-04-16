@@ -63,6 +63,70 @@
       </UCard>
     </div>
 
+    <!-- IMPORTAR ASSINATURAS DO ASAAS -->
+    <UCard class="mb-6 border-2 border-green-200 dark:border-green-800">
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <UIcon name="i-lucide-repeat" class="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h3 class="text-base font-semibold">Assinaturas do Asaas</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Visualize e gerencie as assinaturas recorrentes</p>
+            </div>
+          </div>
+          <UButton variant="soft" color="info" icon="i-lucide-eye" :loading="isLoadingSubscriptions"
+            :disabled="!status?.asaas?.connected" @click="loadSubscriptions">
+            Ver Assinaturas
+          </UButton>
+        </div>
+
+        <!-- Lista de Assinaturas -->
+        <div v-if="subscriptionsResult" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <p class="font-medium text-sm">📋 Assinaturas encontradas</p>
+            <UButton variant="ghost" size="xs" icon="i-lucide-x" @click="subscriptionsResult = null" />
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+            <div class="text-center p-2 bg-gray-100 dark:bg-gray-800 rounded">
+              <p class="text-lg font-bold">{{ subscriptionsResult.counts?.total ?? 0 }}</p>
+              <p class="text-xs text-gray-500">Total</p>
+            </div>
+            <div class="text-center p-2 bg-green-100 dark:bg-green-900/30 rounded">
+              <p class="text-lg font-bold text-green-600">{{ subscriptionsResult.counts?.active ?? 0 }}</p>
+              <p class="text-xs text-gray-500">Ativas</p>
+            </div>
+            <div class="text-center p-2 bg-gray-100 dark:bg-gray-800 rounded">
+              <p class="text-lg font-bold text-gray-600">{{ subscriptionsResult.counts?.inactive ?? 0 }}</p>
+              <p class="text-xs text-gray-500">Inativas</p>
+            </div>
+            <div class="text-center p-2 bg-red-100 dark:bg-red-900/30 rounded">
+              <p class="text-lg font-bold text-red-600">{{ subscriptionsResult.counts?.cancelled ?? 0 }}</p>
+              <p class="text-xs text-gray-500">Canceladas</p>
+            </div>
+          </div>
+
+          <div class="max-h-64 overflow-y-auto space-y-2">
+            <div v-for="sub in subscriptionsResult.subscriptions" :key="sub.id"
+              class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div>
+                <p class="font-medium text-sm">{{ sub.description || 'Assinatura' }}</p>
+                <p class="text-xs text-gray-500">ID: {{ sub.id }}</p>
+                <p class="text-xs text-gray-500">Cliente: {{ sub.customer }}</p>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-green-600">R$ {{ sub.value?.toFixed(2) }}</p>
+                <p class="text-xs text-gray-500">{{ sub.cycle }}</p>
+                <UBadge :color="getSubscriptionColor(sub.status)" size="sm">{{ sub.status }}</UBadge>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </UCard>
+
     <!-- IMPORTAR FATURAS DO ASAAS -->
     <UCard class="mb-6 border-2 border-purple-200 dark:border-purple-800">
       <div>
@@ -296,8 +360,10 @@ const isImporting = ref(false)
 const isSyncing = ref(false)
 const isImportingPayments = ref(false)
 const isDryRun = ref(false)
+const isLoadingSubscriptions = ref(false)
 const syncResult = ref<any>(null)
 const importPaymentsResult = ref<any>(null)
+const subscriptionsResult = ref<any>(null)
 const importStatusFilter = ref('all')
 
 const importStatusOptions = [
@@ -332,6 +398,27 @@ const copyWebhookUrl = () => {
 const getDryRunTotal = (details: any[]) => {
   if (!details?.length) return 0
   return details.reduce((sum: number, d: any) => sum + (d.value || 0), 0).toFixed(2).replace('.', ',')
+}
+
+const getSubscriptionColor = (status: string) => {
+  switch (status) {
+    case 'ACTIVE': return 'success'
+    case 'INACTIVE': return 'warning'
+    case 'CANCELLED': return 'error'
+    default: return 'info'
+  }
+}
+
+const loadSubscriptions = async () => {
+  isLoadingSubscriptions.value = true
+  try {
+    const result = await $fetch('/api/asaas/import-subscriptions')
+    subscriptionsResult.value = result
+  } catch (e: any) {
+    toast.add({ title: e.data?.message || 'Erro ao carregar assinaturas', color: 'error' })
+  } finally {
+    isLoadingSubscriptions.value = false
+  }
 }
 
 const importarFaturas = async (dryRun: boolean) => {

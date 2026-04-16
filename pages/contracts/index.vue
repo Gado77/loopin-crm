@@ -2,8 +2,8 @@
   <div>
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Contratos</h1>
-        <p class="text-gray-500 dark:text-gray-400">Gerencie contratos e recorrências dos seus clientes</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Assinaturas</h1>
+        <p class="text-gray-500 dark:text-gray-400">Gerencie assinaturas recorrentes e contratos dos seus clientes</p>
       </div>
       <UButton color="primary" icon="i-lucide-plus" @click="openModal()">
         Novo Contrato
@@ -13,8 +13,8 @@
     <UCard class="bg-white dark:bg-gray-900">
       <UTable :data="contracts" :columns="columns" class="w-full">
         <template #status-cell="{ row }">
-          <UBadge :color="row.original.status === 'active' ? 'success' : row.original.status === 'completed' ? 'info' : 'error'">
-            {{ row.original.status === 'active' ? 'Ativo' : row.original.status === 'completed' ? 'Concluído' : 'Cancelado' }}
+          <UBadge :color="getStatusColor(row.original.status)">
+            {{ getStatusLabel(row.original.status) }}
           </UBadge>
         </template>
         <template #client-cell="{ row }">
@@ -121,9 +121,9 @@
       <template #content>
         <div class="p-6" v-if="selectedContract">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold">Contrato</h3>
-            <UBadge :color="selectedContract.status === 'active' ? 'success' : 'info'">
-              {{ selectedContract.status === 'active' ? 'Ativo' : 'Concluído' }}
+            <h3 class="text-lg font-semibold">Assinatura</h3>
+            <UBadge :color="getStatusColor(selectedContract.status)">
+              {{ getStatusLabel(selectedContract.status) }}
             </UBadge>
           </div>
           
@@ -212,6 +212,32 @@ const formatDate = (date: string) => {
 const getInvoiceCount = (contractId: string) => {
   if (!allInvoices.value) return 0
   return allInvoices.value.filter((i: any) => i.contract_id === contractId).length
+}
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'active': return 'success'
+    case 'completed': return 'info'
+    case 'cancelled': return 'error'
+    case 'ACTIVE': return 'success'
+    case 'INACTIVE': return 'warning'
+    case 'SUSPENDED': return 'warning'
+    case 'EXPIRED': return 'error'
+    default: return 'neutral'
+  }
+}
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'active': return 'Ativo'
+    case 'completed': return 'Concluído'
+    case 'cancelled': return 'Cancelado'
+    case 'ACTIVE': return 'Ativa'
+    case 'INACTIVE': return 'Inativa'
+    case 'SUSPENDED': return 'Suspensa'
+    case 'EXPIRED': return 'Expirada'
+    default: return status
+  }
 }
 
 const openModal = () => {
