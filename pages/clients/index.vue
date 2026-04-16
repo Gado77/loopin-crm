@@ -101,41 +101,14 @@
             </div>
 
             <div class="space-y-4">
-              <h4 class="font-medium text-gray-900 dark:text-white border-b pb-2">Dados Comerciais</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormField label="Plano Contratado" name="planType">
-                  <UInput v-model="formState.planType" placeholder="Ex: Plano 5 Telas" />
-                </UFormField>
-
-                <UFormField label="Valor Mensal (R$)" name="monthlyFee">
-                  <UInput
-                    v-model.number="formState.monthlyFee"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                  />
-                </UFormField>
-
-                <UFormField label="Data de Início" name="startDate">
-                  <UInput v-model="formState.startDate" type="date" />
-                </UFormField>
-
-                <UFormField label="Renovação" name="renewalDate">
-                  <UInput v-model="formState.renewalDate" type="date" />
-                </UFormField>
-                
-                <UFormField label="Origem do Cliente" name="leadSource">
-                  <UInput v-model="formState.leadSource" placeholder="Ex: Instagram, Indicação" />
-                </UFormField>
-
-                <UFormField label="Status" name="status">
-                  <USelect v-model="formState.status" :items="statusOptions.filter(o => o.value !== 'all')" />
-                </UFormField>
-              </div>
+              <h4 class="font-medium text-gray-900 dark:text-white border-b pb-2">Status</h4>
+              <UFormField label="Status do Cliente" name="status">
+                <USelect v-model="formState.status" :items="statusOptions.filter(o => o.value !== 'all')" />
+              </UFormField>
             </div>
 
             <div class="space-y-4">
-              <h4 class="font-medium text-gray-900 dark:text-white border-b pb-2">Financeiro e Obs</h4>
+              <h4 class="font-medium text-gray-900 dark:text-white border-b pb-2">Observações</h4>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <UFormField label="Dias de Tolerância" name="graceDays">
                   <UInput v-model.number="formState.graceDays" type="number" placeholder="30" />
