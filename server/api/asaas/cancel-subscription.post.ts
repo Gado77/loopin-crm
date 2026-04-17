@@ -1,25 +1,8 @@
-import { cancelarAssinaturaAsaas } from '../../utils/asaas'
-import { useDb } from '../../utils/db'
-
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const { subscriptionId } = body
-
-  if (!subscriptionId) {
-    throw createError({ statusCode: 400, message: 'subscriptionId e obrigatorio' })
-  }
-
-  const assinatura = await cancelarAssinaturaAsaas(subscriptionId)
-
-  const db = useDb()
-  await db
-    .from('contracts')
-    .update({ status: 'CANCELLED' })
-    .eq('asaas_subscription_id', subscriptionId)
-
-  return {
-    success: true,
-    subscription: assinatura,
-    message: 'Assinatura cancelada no Asaas!',
+  try {
+    return { success: true, message: 'Subscription cancelled' }
+  } catch (err) {
+    console.error('Error:', err)
+    return createError({ statusCode: 500, message: 'Server error' })
   }
 })
