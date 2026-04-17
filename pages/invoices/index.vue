@@ -43,7 +43,11 @@
           <UBadge :color="getStatusColor(row.original.status)">{{ getStatusLabel(row.original.status) }}</UBadge>
         </template>
         <template #contract-cell="{ row }">
-          <UBadge v-if="row.original.contract_id" variant="soft" color="info">Contrato</UBadge>
+          <UBadge v-if="row.original.asaas_payment_id" variant="soft" color="purple">
+            <span class="i-lucide-repeat mr-1"></span>
+            Assinatura
+          </UBadge>
+          <UBadge v-else-if="row.original.contract_id" variant="soft" color="info">Contrato</UBadge>
           <UBadge v-else variant="soft" color="neutral">Avulsa</UBadge>
         </template>
         <template #actions-cell="{ row }">
