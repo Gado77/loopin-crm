@@ -240,11 +240,18 @@
     <UModal v-model:open="isDeleteOpen">
       <template #content>
         <div class="p-6">
-          <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
-          <p class="text-gray-600 dark:text-gray-300">
+          <h3 class="text-lg font-semibold mb-4 text-red-600">Confirmar Exclusão</h3>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
             Tem certeza que deseja excluir o anunciante <strong>{{ clientToDelete?.name }}</strong>?
-            Todas as campanhas vinculadas também serão excluídas.
           </p>
+          <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-3 text-sm">
+            <p class="font-medium text-amber-700 dark:text-amber-300 mb-1">⚠️ Importante:</p>
+            <ul class="list-disc list-inside text-amber-600 dark:text-amber-400 space-y-1">
+              <li>O cliente será removido apenas do CRM</li>
+              <li>Se tiver vínculo com Asaas, permanecerá lá</li>
+              <li>Todas as faturas e campanhas serão excluídas</li>
+            </ul>
+          </div>
           <div class="flex justify-end gap-3 mt-6">
             <UButton variant="soft" @click="isDeleteOpen = false">Cancelar</UButton>
             <UButton color="error" :loading="isDeleting" @click="handleDelete">Excluir</UButton>
