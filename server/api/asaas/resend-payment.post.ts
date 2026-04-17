@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   if (!body.paymentId && !body.invoiceId) {
     throw createError({
       statusCode: 400,
-      message: 'paymentId ou invoiceId é obrigatório'
+      message: 'paymentId ou invoiceId e obrigatorio'
     })
   }
 
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     if (!invoice?.asaas_payment_id) {
       throw createError({
         statusCode: 400,
-        message: 'Fatura não possui cobrança no Asaas'
+        message: 'Fatura nao possui cobranca no Asaas'
       })
     }
     paymentId = invoice.asaas_payment_id
@@ -34,13 +34,13 @@ export default defineEventHandler(async (event) => {
     const result = await reenviarCobrancaAsaas(paymentId)
     return {
       success: true,
-      message: 'Cobrança reenviada por e-mail',
+      message: 'Cobranca reenviada por e-mail',
       data: result
     }
   } catch (error: any) {
     throw createError({
       statusCode: error.statusCode || 500,
-      message: error.message || 'Erro ao reenviar cobrança'
+      message: error.message || 'Erro ao reenviar cobranca'
     })
   }
 })

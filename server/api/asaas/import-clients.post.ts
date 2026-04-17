@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const mode = body.mode || 'import' // 'import' ou 'sync'
   
   try {
-    console.log('[Import] Iniciando importação de clientes do Asaas...')
+    console.log('[Import] Iniciando importacao de clientes do Asaas...')
     const asaasClients = await listarClientesAsaas()
     console.log(`[Import] Encontrados ${asaasClients.data.length} clientes no Asaas`)
     

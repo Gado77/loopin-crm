@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
   if (!body.clientId) {
     throw createError({
       statusCode: 400,
-      message: 'clientId é obrigatório'
+      message: 'clientId e obrigatorio'
     })
   }
 
@@ -66,28 +66,28 @@ export default defineEventHandler(async (event) => {
   if (clientError || !client) {
     throw createError({
       statusCode: 404,
-      message: 'Cliente não encontrado'
+      message: 'Cliente nao encontrado'
     })
   }
 
   if (!client.name || client.name.trim() === '') {
     throw createError({
       statusCode: 400,
-      message: 'Nome do cliente é obrigatório para sincronizar com Asaas'
+      message: 'Nome do cliente e obrigatorio para sincronizar com Asaas'
     })
   }
 
   if (client.email && !isValidEmail(client.email)) {
     throw createError({
       statusCode: 400,
-      message: 'Email do cliente é inválido'
+      message: 'Email do cliente e invalido'
     })
   }
 
   if (client.document && !isValidCpfCnpj(client.document)) {
     throw createError({
       statusCode: 400,
-      message: 'CPF/CNPJ do cliente é inválido'
+      message: 'CPF/CNPJ do cliente e invalido'
     })
   }
 

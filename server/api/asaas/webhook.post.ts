@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   if (webhookSecret) {
     const signatureHeader = getHeader(event, 'asaas-access-token') || getHeader(event, 'asaas-webhook-token')
     if (!signatureHeader || signatureHeader !== webhookSecret) {
-      throw createError({ statusCode: 401, message: 'Webhook token inválido' })
+      throw createError({ statusCode: 401, message: 'Webhook token invalido' })
     }
   }
 
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
             .eq('id', invoice.client_id)
             
           if (!clientError) {
-            console.log(`[Webhook] Cliente ${invoice.client_id} ativado após pagamento!`)
+             console.log(`[Webhook] Cliente ${invoice.client_id} ativado apos pagamento!`)
             // Notifica o Loopin.tv para ativar as campanhas
             const { notifyLoopinTv } = await import('../../utils/loopin-tv')
             await notifyLoopinTv(invoice.client_id, 'activate')
@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
     if (paymentData?.externalReference && newStatus !== 'paid') {
       const updateData: Record<string, string> = { status: newStatus }
       if (newStatus === 'cancelled') {
-        // Limpa o vínculo com Asaas quando cancelado para permitir nova cobrança
+        // Limpa o vinculo com Asaas quando cancelado para permitir nova cobranca
         // (não limpa asaas_payment_id para manter histórico)
       }
 

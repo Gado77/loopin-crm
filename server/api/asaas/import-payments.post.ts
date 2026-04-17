@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
   while (true) {
     if (allPayments.length >= maxPayments) {
-      console.warn(`[import-payments] Limite de ${maxPayments} cobranças atingido`)
+      console.warn(`[import-payments] Limite de ${maxPayments} cobancas atingido`)
       break
     }
 
@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
     const pageData = page.data || []
     allPayments.push(...pageData)
 
-    console.log(`[import-payments] Página offset=${offset}: ${pageData.length} cobranças (total até agora: ${allPayments.length})`)
+    console.log(`[import-payments] Pagina offset=${offset}: ${pageData.length} cobancas (total ate agora: ${allPayments.length})`)
 
     if (!pageData.length) break
     if (page.hasMore === false) break
@@ -107,8 +107,8 @@ export default defineEventHandler(async (event) => {
 
     // Cliente não encontrado no CRM
     if (!clientId) {
-      skippedNoClient.push(`${paymentLabel} (R$ ${payment.value}) — cliente Asaas ${payment.customer} não vinculado`)
-      console.warn(`[import-payments] Cliente Asaas não encontrado no CRM: ${payment.customer}`)
+       skippedNoClient.push(`${paymentLabel} (R$ ${payment.value}) — cliente Asaas ${payment.customer} nao vinculado`)
+       console.warn(`[import-payments] Cliente Asaas nao encontrado no CRM: ${payment.customer}`)
       continue
     }
 
@@ -156,14 +156,14 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  console.log(`[import-payments] Concluído: ${imported.length} importados, ${skippedExists.length} já existiam, ${skippedNoClient.length} sem cliente, ${errors.length} erros`)
+  console.log(`[import-payments] Concluido: ${imported.length} importados, ${skippedExists.length} ja existiam, ${skippedNoClient.length} sem cliente, ${errors.length} erros`)
 
   return {
     success: true,
     dryRun,
     message: dryRun
-      ? `Simulação: ${imported.length} cobranças seriam importadas`
-      : `Importação concluída! ${imported.length} fatura(s) importada(s) do Asaas.`,
+      ? `Simulacao: ${imported.length} cobancas seriam importadas`
+      : `Importacao concluida! ${imported.length} fatura(s) importada(s) do Asaas.`,
     counts: {
       total: allPayments.length,
       imported: imported.length,

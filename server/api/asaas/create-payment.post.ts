@@ -9,11 +9,11 @@ function todayBR(): string {
   return now.toISOString().split('T')[0]
 }
 
-// Garante que a dueDate não fique no passado (Asaas rejeita com 400)
+// Garante que a dueDate nao fique no passado (Asaas rejeita com 400)
 function resolverDueDate(invoiceDueDate: string | null): string {
   const today = todayBR()
   if (!invoiceDueDate || invoiceDueDate < today) {
-    console.log(`[create-payment] dueDate ${invoiceDueDate} está no passado → usando hoje (${today})`)
+    console.log(`[create-payment] dueDate ${invoiceDueDate} esta no passado → usando hoje (${today})`)
     return today
   }
   return invoiceDueDate
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body.invoiceId) {
-    throw createError({ statusCode: 400, message: 'invoiceId é obrigatório' })
+    throw createError({ statusCode: 400, message: 'invoiceId e obrigatorio' })
   }
 
   const allowedTypes = ['PIX', 'BOLETO', 'CREDIT_CARD']
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (invoiceError || !invoice) {
-    throw createError({ statusCode: 404, message: 'Fatura não encontrada' })
+    throw createError({ statusCode: 404, message: 'Fatura nao encontrada' })
   }
 
   // Validação de valor mínimo
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
   if (!valor || valor < 1) {
     throw createError({
       statusCode: 400,
-      message: `Valor da fatura (R$ ${valor.toFixed(2)}) é menor que o mínimo do Asaas (R$ 1,00)`
+      message: `Valor da fatura (R$ ${valor.toFixed(2)}) e menor que o minimo do Asaas (R$ 1,00)`
     })
   }
 
@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
         }
       }
     } catch {
-      // Cobrança não existe mais no Asaas → limpa o ID e recria
+       // Cobranca nao existe mais no Asaas → limpa o ID e recria
       await db
         .from('invoices')
         .update({ asaas_payment_id: null, asaas_billing_type: null })
@@ -139,7 +139,7 @@ export default defineEventHandler(async (event) => {
     // Re-throw com a mensagem exata do Asaas para o frontend ver
     throw createError({
       statusCode: err.statusCode || 400,
-      message: err.message || 'Erro ao criar cobrança no Asaas'
+      message: err.message || 'Erro ao criar cobranca no Asaas'
     })
   }
 
@@ -160,7 +160,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  console.log(`[create-payment] Cobrança criada: ${asaasPayment.id}`)
+  console.log(`[create-payment] Cobranca criada: ${asaasPayment.id}`)
 
   return {
     success: true,

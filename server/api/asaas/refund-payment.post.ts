@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   if (!body.paymentId && !body.invoiceId) {
     throw createError({
       statusCode: 400,
-      message: 'paymentId ou invoiceId é obrigatório'
+      message: 'paymentId ou invoiceId e obrigatorio'
     })
   }
 
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     if (!invoice?.asaas_payment_id) {
       throw createError({
         statusCode: 400,
-        message: 'Fatura não possui cobrança no Asaas para estornar'
+        message: 'Fatura nao possui cobranca no Asaas para estornar'
       })
     }
     paymentId = invoice.asaas_payment_id

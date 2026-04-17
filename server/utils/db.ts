@@ -1,8 +1,8 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-// Não usar singleton em nível de módulo — em ambientes serverless (Vercel)
-// o processo pode ser reutilizado entre diferentes requisições/usuários.
-// useRuntimeConfig() é a forma correta de acessar env vars no Nitro.
+// Nao usar singleton em nivel de modulo — em ambientes serverless (Vercel)
+// o processo pode ser reutilizado entre diferentes requisicoes/usuarios.
+// useRuntimeConfig() e a forma correta de acessar env vars no Nitro.
 
 export function useDb(): SupabaseClient {
   const config = useRuntimeConfig()

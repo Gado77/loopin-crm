@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     const pageData = page.data || []
     allSubscriptions.push(...pageData)
 
-    console.log(`[import-subscriptions] Página offset=${offset}: ${pageData.length} assinaturas (total: ${allSubscriptions.length})`)
+    console.log(`[import-subscriptions] Pagina offset=${offset}: ${pageData.length} assinaturas (total: ${allSubscriptions.length})`)
 
     if (!pageData.length) break
     if (page.hasMore === false) break
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       dryRun: true,
-      message: `Simulação: ${allSubscriptions.length} assinaturas encontradas no Asaas`,
+      message: `Simulacao: ${allSubscriptions.length} assinaturas encontradas no Asaas`,
       subscriptions: allSubscriptions.map(s => ({
         id: s.id,
         customer: s.customer,

@@ -96,7 +96,7 @@ function getHeaders() {
   if (!apiKey) {
     throw createError({
       statusCode: 500,
-      message: 'ASAAS_API_KEY não configurada. Configure a variável de ambiente.'
+      message: 'ASAAS_API_KEY nao configurada. Configure a variavel de ambiente.'
     })
   }
 

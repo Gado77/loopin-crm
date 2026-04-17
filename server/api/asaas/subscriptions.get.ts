@@ -95,7 +95,7 @@ export default defineEventHandler(async (event) => {
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Erro na sincronização',
+        message: error.message || 'Erro na sincronizacao',
         imported: 0,
         skipped: 0,
         total: 0,

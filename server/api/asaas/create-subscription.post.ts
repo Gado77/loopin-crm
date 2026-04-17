@@ -17,14 +17,14 @@ export default defineEventHandler(async (event) => {
   if (!clientId || !value || !nextDueDate) {
     throw createError({
       statusCode: 400,
-      message: 'clientId, value e nextDueDate são obrigatórios',
+      message: 'clientId, value e nextDueDate sao obrigatorios',
     })
   }
 
   if (value < 1) {
     throw createError({
       statusCode: 400,
-      message: 'Valor mínimo é R$ 1,00',
+      message: 'Valor minimo e R$ 1,00',
     })
   }
 
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (clientError || !client) {
-    throw createError({ statusCode: 404, message: 'Cliente não encontrado' })
+    throw createError({ statusCode: 404, message: 'Cliente nao encontrado' })
   }
 
   let asaasCustomerId = client.asaas_customer_id

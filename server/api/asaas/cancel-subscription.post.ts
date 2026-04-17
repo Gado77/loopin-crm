@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const { subscriptionId } = body
 
   if (!subscriptionId) {
-    throw createError({ statusCode: 400, message: 'subscriptionId é obrigatório' })
+    throw createError({ statusCode: 400, message: 'subscriptionId e obrigatorio' })
   }
 
   const assinatura = await cancelarAssinaturaAsaas(subscriptionId)
