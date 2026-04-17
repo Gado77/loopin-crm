@@ -39,5 +39,9 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'vercel'
+  },
+
+  experimental: {
+    payloadExtraction: false
   }
 })
