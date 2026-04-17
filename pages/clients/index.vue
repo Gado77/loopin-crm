@@ -40,6 +40,16 @@
         <template #actions-cell="{ row }">
           <div class="flex items-center gap-2">
             <UButton
+              v-if="!row.original.asaas_customer_id"
+              variant="ghost"
+              color="purple"
+              size="sm"
+              icon="i-lucide-cloud-plus"
+              title="Sincronizar com Asaas"
+              :loading="syncingId === row.original.id"
+              @click="syncToAsaas(row.original)"
+            />
+            <UButton
               variant="ghost"
               color="primary"
               size="sm"
@@ -283,6 +293,7 @@ const isDeleting = ref(false)
 const editingClient = ref<any>(null)
 const selectedClient = ref<any>(null)
 const clientToDelete = ref<any>(null)
+const syncingId = ref<string | null>(null)
 
 const formState = reactive<FormState>({
   name: '',
@@ -444,6 +455,25 @@ const viewClient = async (client: any) => {
 const confirmDelete = (client: any) => {
   clientToDelete.value = client
   isDeleteOpen.value = true
+}
+
+const syncToAsaas = async (client: any) => {
+  syncingId.value = client.id
+  try {
+    const result = await $fetch('/api/asaas/create-customer', {
+      method: 'POST',
+      body: { clientId: client.id }
+    })
+    toast.add({ title: 'Cliente sincronizado com Asaas!', color: 'success' })
+    refreshClients()
+    if (selectedClient.value?.id === client.id) {
+      viewClient(client)
+    }
+  } catch (e: any) {
+    toast.add({ title: e.data?.message || 'Erro ao sincronizar com Asaas', color: 'error' })
+  } finally {
+    syncingId.value = null
+  }
 }
 
 const handleSubmit = async () => {
