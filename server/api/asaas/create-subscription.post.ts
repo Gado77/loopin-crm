@@ -1,21 +1,25 @@
+import { criarAssinaturaAsaas, criarClienteAsaas } from '../../utils/asaas'
+import { useDb, generateId } from '../../utils/db'
+
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { clientId, value, billingType, cycle, nextDueDate, description, installments } = body
+    const { clientId, value, billingType = 'PIX', cycle = 'MONTHLY', nextDueDate, description, installments } = body
 
     if (!clientId || !value || !nextDueDate) {
-      return createError({ statusCode: 400, message: 'Missing required fields' })
+      throw createError({ statusCode: 400, message: 'Missing: clientId, value, nextDueDate' })
+    }
+
+    if (value < 1) {
+      throw createError({ statusCode: 400, message: 'Value must be at least 1.00' })
     }
 
     const db = useDb()
-
-    const { data: client } = await db.from('clients').select('*').eq('id', clientId).single()
+    const { data: client } = await db.from('clients').select('id, name, email, phone, cpf_cnpj, asaas_customer_id').eq('id', clientId).single()
 
     if (!client) {
-      return createError({ statusCode: 404, message: 'Client not found' })
+      throw createError({ statusCode: 404, message: 'Client not found' })
     }
-
-    const { criarAssinaturaAsaas, criarClienteAsaas } = await import('../../utils/asaas')
 
     let asaasCustomerId = client.asaas_customer_id
 
@@ -27,42 +31,43 @@ export default defineEventHandler(async (event) => {
         cpfCnpj: client.cpf_cnpj || undefined,
         externalReference: client.id,
       })
+
       asaasCustomerId = asaasCustomer.id
+
       await db.from('clients').update({ asaas_customer_id: asaasCustomerId }).eq('id', clientId)
     }
 
     const assinatura = await criarAssinaturaAsaas({
       customer: asaasCustomerId,
-      billingType: billingType || 'PIX',
+      billingType,
       value,
-      cycle: cycle || 'MONTHLY',
+      cycle,
       nextDueDate,
-      description: description || `Subscription`,
+      description: description || `Subscription - ${client.name}`,
       externalReference: clientId,
       installments,
     })
 
-    const { generateId } = await import('../../utils/db')
     const contractId = generateId()
-
     const { data: contract } = await db.from('contracts').insert({
       id: contractId,
       client_id: clientId,
-      name: description || `Subscription`,
+      name: description || `Subscription - ${client.name}`,
       start_date: nextDueDate,
       monthly_value: value,
       total_months: installments || null,
       status: assinatura.status === 'ACTIVE' ? 'active' : assinatura.status.toLowerCase(),
-      notes: `Asaas ID: ${assinatura.id}`,
+      notes: `Asaas Subscription ID: ${assinatura.id}`,
     }).select().single()
 
     return {
       success: true,
       subscription: assinatura,
       contract,
+      message: 'Subscription created successfully',
     }
   } catch (err) {
-    console.error('Error creating subscription:', err)
-    return createError({ statusCode: 500, message: 'Internal server error' })
+    console.error('[create-subscription] Error:', err)
+    throw err
   }
 })
