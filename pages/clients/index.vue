@@ -38,20 +38,21 @@
           <UBadge :color="getStatusColor(row.original.status)">{{ getStatusLabel(row.original.status) }}</UBadge>
         </template>
         <template #actions-cell="{ row }">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
             <UButton
               v-if="!row.original.asaas_customer_id"
-              variant="ghost"
-              color="purple"
-              size="sm"
-              icon="i-lucide-cloud-plus"
-              title="Sincronizar com Asaas"
+              variant="outline"
+              color="warning"
+              size="xs"
+              icon="i-lucide-link"
+              title="Vincular ao Asaas"
               :loading="syncingId === row.original.id"
               @click="syncToAsaas(row.original)"
-            />
+            >
+              Asaas
+            </UButton>
             <UButton
               variant="ghost"
-              color="primary"
               size="sm"
               icon="i-lucide-eye"
               @click="viewClient(row.original)"
