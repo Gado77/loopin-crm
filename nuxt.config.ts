@@ -1,3 +1,4 @@
+// Vercel rebuild trigger
 export default defineNuxtConfig({
   devtools: { enabled: false },
   ssr: true,
