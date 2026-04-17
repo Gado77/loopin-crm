@@ -9,9 +9,6 @@
         <UButton variant="soft" icon="i-lucide-refresh-ccw" :loading="isLoadingAsaas" @click="syncAsaasSubscriptions">
           Sincronizar Asaas
         </UButton>
-        <UButton variant="soft" color="info" icon="i-lucide-file-down" :loading="isImportingPayments" @click="importSubscriptionPayments">
-          Importar Cobranças
-        </UButton>
         <UButton color="primary" icon="i-lucide-plus" @click="openModal()">
           Nova Assinatura
         </UButton>
@@ -307,7 +304,6 @@ const isModalOpen = ref(false)
 const isDetailOpen = ref(false)
 const isSubmitting = ref(false)
 const isLoadingAsaas = ref(false)
-const isImportingPayments = ref(false)
 const selectedSubscription = ref<any>(null)
 
 const form = ref({
@@ -531,22 +527,6 @@ const cancelSubscription = async (subscription: any) => {
     syncAsaasSubscriptions()
   } catch (e: any) {
     toast.add({ title: e.data?.message || 'Erro ao cancelar', color: 'error' })
-  }
-}
-
-const importSubscriptionPayments = async () => {
-  if (!confirm('Importar cobranças das assinaturas do Asaas como faturas?\nIsso pode criar faturas duplicadas se já existirem.')) return
-  
-  isImportingPayments.value = true
-  try {
-    const result = await $fetch('/api/cron/import-subscription-payments', {
-      method: 'POST'
-    })
-    toast.add({ title: result.message, color: 'success' })
-  } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao importar cobranças', color: 'error' })
-  } finally {
-    isImportingPayments.value = false
   }
 }
 </script>
