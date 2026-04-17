@@ -1,4 +1,4 @@
-import { criarAssinaturaAsaas, buscarClienteAsaas, criarClienteAsaas } from '../../utils/asaas'
+import { criarAssinaturaAsaas, criarClienteAsaas } from '../../utils/asaas'
 import { useDb, generateId } from '../../utils/db'
 
 export default defineEventHandler(async (event) => {
@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     installments,
   } = body
 
+  // Validação
   if (!clientId || !value || !nextDueDate) {
     throw createError({
       statusCode: 400,
@@ -29,6 +30,7 @@ export default defineEventHandler(async (event) => {
 
   const db = useDb()
 
+  // Buscar cliente
   const { data: client, error: clientError } = await db
     .from('clients')
     .select('id, name, email, phone, cpf_cnpj, asaas_customer_id')
@@ -41,6 +43,7 @@ export default defineEventHandler(async (event) => {
 
   let asaasCustomerId = client.asaas_customer_id
 
+  // Se cliente não existe no Asaas, criar
   if (!asaasCustomerId) {
     const asaasCustomer = await criarClienteAsaas({
       name: client.name,
@@ -52,12 +55,14 @@ export default defineEventHandler(async (event) => {
 
     asaasCustomerId = asaasCustomer.id
 
+    // Atualizar cliente local com ID do Asaas
     await db
       .from('clients')
       .update({ asaas_customer_id: asaasCustomerId })
       .eq('id', clientId)
   }
 
+  // Criar assinatura no Asaas
   const assinatura = await criarAssinaturaAsaas({
     customer: asaasCustomerId,
     billingType,
@@ -69,6 +74,7 @@ export default defineEventHandler(async (event) => {
     installments,
   })
 
+  // Criar contrato local
   const contractId = generateId()
   const { data: contract, error: contractError } = await db
     .from('contracts')
