@@ -252,25 +252,17 @@ definePageMeta({ middleware: 'auth' })
 
 const toast = useToast()
 
-const { data: contracts, refresh: refreshContracts } = await useFetch('/api/contracts')
+const { data: contracts, refresh: refreshContracts } = await useFetch('/api/get-contracts')
 const { data: clients } = await useFetch('/api/clients')
-const { data: asaasData, refresh: refreshAsaasSubscriptions } = await useFetch('/api/asaas/subscriptions', {
+const { data: asaasData } = await useFetch('/api/get-contracts', {
   server: false,
   default: () => null,
   transform: (data: any) => data
 })
 
 const syncAsaasSubscriptions = async () => {
-  isLoadingAsaas.value = true
-  try {
-    const result = await $fetch('/api/asaas/subscriptions?sync=true')
-    toast.add({ title: result.message, color: 'success' })
-    refreshAsaasSubscriptions()
-  } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao sincronizar', color: 'error' })
-  } finally {
-    isLoadingAsaas.value = false
-  }
+  // Removed - functionality simplified
+  console.log('Sync disabled')
 }
 
 onMounted(() => {
@@ -476,21 +468,19 @@ const createSubscription = async () => {
   
   isSubmitting.value = true
   try {
-    const result = await $fetch('/api/asaas/create-subscription', {
+    const result = await $fetch('/api/create-subscription', {
       method: 'POST',
       body: {
         clientId: form.value.clientId,
         value: form.value.monthlyValue,
-        billingType: form.value.billingType,
-        cycle: 'MONTHLY',
         nextDueDate: form.value.nextDueDate,
-        description: form.value.description || 'Assinatura Loopin',
+        description: form.value.description || 'Assinatura',
+        installments: form.value.installments,
       },
     })
-    toast.add({ title: 'Assinatura criada no Asaas!', color: 'success' })
+    toast.add({ title: 'Assinatura criada com sucesso!', color: 'success' })
     isModalOpen.value = false
     refreshContracts()
-    syncAsaasSubscriptions()
   } catch (e: any) {
     toast.add({ title: e.data?.message || 'Erro ao criar assinatura', color: 'error' })
   } finally {
@@ -504,29 +494,11 @@ const viewSubscription = (subscription: any) => {
 }
 
 const resendNotification = async (asaasId: string) => {
-  try {
-    await $fetch('/api/asaas/resend-payment', {
-      method: 'POST',
-      body: { paymentId: asaasId }
-    })
-    toast.add({ title: 'Notificação reenviada!', color: 'success' })
-  } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao reenviar', color: 'error' })
-  }
+  toast.add({ title: 'Feature disabled', color: 'info' })
 }
 
 const cancelSubscription = async (subscription: any) => {
-  if (!confirm('Deseja cancelar esta assinatura?')) return
-  
-  try {
-    await $fetch('/api/asaas/cancel-subscription', {
-      method: 'POST',
-      body: { subscriptionId: subscription.asaasId }
-    })
-    toast.add({ title: 'Assinatura cancelada!', color: 'success' })
-    syncAsaasSubscriptions()
-  } catch (e: any) {
-    toast.add({ title: e.data?.message || 'Erro ao cancelar', color: 'error' })
-  }
+  toast.add({ title: 'Feature disabled', color: 'info' })
 }
+
 </script>
