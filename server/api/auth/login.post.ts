@@ -14,7 +14,13 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 401, message: 'Invalid credentials' })
     }
     
-    return { success: true, user: { id: user.id, email: user.email, name: user.name } }
+    const token = await createToken({ id: user.id, email: user.email })
+    
+    return { 
+      success: true, 
+      token,
+      user: { id: user.id, email: user.email, name: user.name } 
+    }
   } catch (err) {
     console.error('Login error:', err)
     throw err
