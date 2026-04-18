@@ -1,4 +1,8 @@
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(async (to) => {
+  if (to.path === '/') {
+    return
+  }
+
   const token = localStorage.getItem('auth_token')
 
   if (!token) {
@@ -11,7 +15,7 @@ export default defineNuxtRouteMiddleware(async () => {
         Authorization: `Bearer ${token}`,
       },
     })
-  } catch {
+  } catch (error) {
     localStorage.removeItem('auth_token')
     return navigateTo('/')
   }
